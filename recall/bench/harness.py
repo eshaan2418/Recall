@@ -48,6 +48,7 @@ class System:
     policy: PolicyFn
     memory: str = "events"  # events | frames
     cfg: AnswerConfig = field(default_factory=AnswerConfig)
+    cfg_by_kind: dict[str, AnswerConfig] = field(default_factory=dict)  # overrides per query family
     extractor: ExtractorConfig = field(default_factory=ExtractorConfig)
     state_head: Callable | None = None
     frame_stride: int = 1  # for memory=frames: keep 1 of every `frame_stride` processed frames
@@ -157,7 +158,8 @@ def run(
         for q in by_vid[vid]:
             kind = "where" if q.kind == "absent" else q.kind
             pq = ParsedQuery(kind, q.obj_key, _verb_name(q.verb_class))
-            a = answer(view, pq, q.obj_class, q.t_query, sys.cfg, sys.state_head)
+            cfg = sys.cfg_by_kind.get(kind, sys.cfg)
+            a = answer(view, pq, q.obj_class, q.t_query, cfg, sys.state_head)
             rec = score(q, a, heads.loc_ids)
             rec["system"] = sys.name
             recs.append(rec)

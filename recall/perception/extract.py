@@ -11,16 +11,18 @@ Per video ``data/cache/feats/<model>/<video_id>.npz``:
 * ``hands``       [T,2,7]   per side (L,R): present, score, state, l, t, r, b
 * ``hobj``        [T,2,5]   contacted-object box per side: present, l, t, r, b
 * ``frame_emb``   [T,D]     full-frame embedding (float16)
-* ``reg_*``       regions: crops around contacted objects (``obj``) and their
-                  surroundings (``ctx``) at the current frame, and at the
-                  previous step's object box (``pobj``/``pctx``, used to see
-                  what remains after a release).
+* ``reg_*``       regions: crops around contacted objects (``obj``) at the
+                  current frame, and the surroundings of the previous step's
+                  object box (``pctx``, used to see where it was released).
+                  ``ctx``/``pobj`` kinds exist in the schema but are not
+                  extracted (compute budget; see DECISIONS 2026-10-24).
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -75,6 +77,21 @@ def extract_video(
     out = out_dir / f"{video_id}.npz"
     if out.exists():
         return out
+    out_dir.mkdir(parents=True, exist_ok=True)
+    lock = out.with_suffix(".lock")
+    try:
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)  # another worker owns this video
+        os.close(fd)
+    except FileExistsError:
+        return out
+    try:
+        return _extract(video_id, fps, duration, model, out)
+    finally:
+        lock.unlink(missing_ok=True)
+
+
+def _extract(video_id: str, fps: float, duration: float, model: tuple[str, str], out: Path) -> Path:
+    out_dir = out.parent
     emb = load_embedder(*model)
     hoi = load_hoi(EPIC_RAW / "hoi" / f"{video_id}.pkl")
     reader = FrameReader(video_id)
@@ -96,17 +113,17 @@ def extract_video(
 
     def flush() -> None:
         if frame_imgs:
-            frame_emb.append(emb.images(frame_imgs).astype(np.float16))
+            frame_emb.append(emb.images(frame_imgs, batch=BATCH).astype(np.float16))
             frame_imgs.clear()
 
     region_emb: list[np.ndarray] = []
 
     def flush_regions() -> None:
         if reg_imgs:
-            region_emb.append(emb.images(reg_imgs).astype(np.float16))
+            region_emb.append(emb.images(reg_imgs, batch=BATCH).astype(np.float16))
             reg_imgs.clear()
 
-    for i, t in enumerate(tqdm(ts, desc=video_id, leave=False)):
+    for i, t in enumerate(tqdm(ts, desc=video_id, leave=False, disable=True)):
         fidx = min(n_native, int(round(t * fps)) + 1)
         img = reader.frame(fidx)
         thumbs[i] = np.asarray(Image.fromarray(img).resize(THUMB_HW[::-1], Image.Resampling.BILINEAR))
@@ -116,7 +133,7 @@ def extract_video(
         frame_imgs.append(img)
         for side in (0, 1):
             if O[side, 0] and H[side, 2] in (PORTABLE, STATIONARY):
-                for kind, f in (("obj", 1.15), ("ctx", 3.0)):
+                for kind, f in (("obj", 1.15),):
                     reg_t.append(i)
                     reg_kind.append(REGION_KINDS.index(kind))
                     reg_side.append(side)
@@ -124,7 +141,7 @@ def extract_video(
                     reg_box.append(b)
                     reg_imgs.append(crop(img, b))
             if prev_obj[side, 0]:
-                for kind, f in (("pobj", 1.15), ("pctx", 3.0)):
+                for kind, f in (("pctx", 3.0),):
                     reg_t.append(i)
                     reg_kind.append(REGION_KINDS.index(kind))
                     reg_side.append(side)
@@ -167,9 +184,14 @@ def main() -> None:
     ap.add_argument("--split", default=None)
     ap.add_argument("--videos", nargs="*")
     ap.add_argument("--model", default=f"{DEFAULT_MODEL[0]}/{DEFAULT_MODEL[1]}")
+    ap.add_argument("--order", default="fwd", choices=["fwd", "rev", "mid"])
     a = ap.parse_args()
     model = tuple(a.model.split("/"))
     subset = json.loads((REPO / "configs" / "epic_subset.json").read_text())
+    if a.order == "rev":
+        subset = subset[::-1]
+    elif a.order == "mid":
+        subset = subset[len(subset) // 2 :] + subset[: len(subset) // 2]
     for v in subset:
         if a.split and v["split"] != a.split:
             continue

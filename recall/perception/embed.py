@@ -35,9 +35,12 @@ class Embedder:
         out = []
         for i in range(0, len(imgs), batch):
             chunk = [im if isinstance(im, Image.Image) else Image.fromarray(im) for im in imgs[i : i + batch]]
-            x = torch.stack([self.preprocess(im) for im in chunk]).to(self.dev)  # type: ignore[operator]
-            f = self.model.encode_image(x)  # type: ignore[operator]
-            out.append(torch.nn.functional.normalize(f.float(), dim=-1).cpu().numpy())
+            x = torch.stack([self.preprocess(im) for im in chunk])  # type: ignore[operator]
+            n = len(chunk)
+            if n < batch:  # fixed shapes: MPS recompiles its graph for every new batch size
+                x = torch.cat([x, x[:1].expand(batch - n, *x.shape[1:])])
+            f = self.model.encode_image(x.to(self.dev, self.dtype))  # type: ignore[operator]
+            out.append(torch.nn.functional.normalize(f.float(), dim=-1)[:n].cpu().numpy())
         if not out:
             return np.zeros((0, self.dim), np.float32)
         return np.concatenate(out).astype(np.float32)
@@ -51,6 +54,10 @@ class Embedder:
             out.append(torch.nn.functional.normalize(f.float(), dim=-1).cpu().numpy())
         return np.concatenate(out).astype(np.float32)
 
+    @property
+    def dtype(self) -> torch.dtype:
+        return next(self.model.parameters()).dtype
+
     @functools.cached_property
     def dim(self) -> int:
         return int(self.texts(["a"]).shape[1])
@@ -63,6 +70,8 @@ def load_embedder(name: str = DEFAULT_MODEL[0], pretrained: str = DEFAULT_MODEL[
     dev = device()
     model, _, preprocess = open_clip.create_model_and_transforms(name, pretrained=pretrained)
     model = model.eval().to(dev)
+    if dev.type == "mps":
+        model = model.half()  # fp16 is ~50x faster than fp32 on MPS here (DECISIONS 2026-10-24)
     tok = open_clip.get_tokenizer(name)
     ls = float(model.logit_scale.exp().item()) if hasattr(model, "logit_scale") else 100.0
     return Embedder(name, pretrained, model, preprocess, tok, dev, ls)
