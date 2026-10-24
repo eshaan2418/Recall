@@ -1,0 +1,30 @@
+[project]
+name = "recall"
+version = "0.1.0"
+description = "Recall: on-device episodic visual memory (research code)"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+
+[tool.setuptools.packages.find]
+include = ["recall*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["android", "paper", "results"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF"]
+ignore = ["E501", "RUF046", "RUF059", "E741", "N803", "N806", "RUF001", "RUF002", "RUF003", "B905", "SIM108"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = false
+check_untyped_defs = false
+files = ["recall"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: needs models or licensed data (skipped in CI)"]
+addopts = "-q"
