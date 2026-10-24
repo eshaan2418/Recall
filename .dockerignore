@@ -1,0 +1,8 @@
+.venv
+data/raw
+data/cache
+data/personal
+models
+android/.gradle
+android/build
+.git

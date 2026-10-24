@@ -12,3 +12,5 @@ Dated decisions + rationale. Newest at the bottom.
 - **Large-model baseline B1** = an open VLM run locally (Qwen2.5-VL), because no cloud API key exists. Labeled "large open VLM", not "cloud frontier model", everywhere.
 - **No phone** → emulator for functional Android tests; all energy numbers are `estimated` from an explicit, documented energy model, never presented as measurements.
 - Never copy the user-level pip/gradle mirror credentials into the repo; CI uses public PyPI/Maven.
+- **Embedder = MobileCLIP2-S2 (dfndr2b)**, chosen on train+val videos only (`results/m1/select_embedder.json`; 222 object crops / 186 location crops from P02_129, P02_123, P18_*). Zero-shot object top-1 0.149 vs 0.171 for ViT-L-14 (8.5× larger image encoder), location top-1 0.226 vs 0.215. MobileCLIP2-S2 is the only candidate both near-best and plausibly phone-deployable (≈36 M image-encoder params). ViT-L-14 is kept as the "teacher" reference in M5.
+- Derived query files (`configs/queries/*.jsonl`) are committed: they contain EPIC narration strings (CC BY-NC 4.0, attribution: Damen et al., "Rescaling Egocentric Vision", IJCV 2022) but no frames.

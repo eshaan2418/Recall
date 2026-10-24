@@ -1,0 +1,79 @@
+{
+ "evidence_stage": "desktop-proxy",
+ "git_commit": "0599cfb1fee6c05ac598f14fad0ba9731269bfaf",
+ "git_dirty": true,
+ "hardware": {
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.12.14",
+  "cpu": "Apple M5 Pro"
+ },
+ "versions": {
+  "numpy": "2.5.4",
+  "torch": "2.14.1",
+  "transformers": "5.20.1",
+  "open_clip": "3.3.0",
+  "sklearn": "1.9.1"
+ },
+ "seed": 0,
+ "config": {
+  "videos": [
+   "P02_129",
+   "P02_123",
+   "P18_05",
+   "P18_11",
+   "P18_03",
+   "P18_06"
+  ]
+ },
+ "timestamp": "2026-10-24T17:20:30+00:00",
+ "n_obj": 222,
+ "n_loc": 186,
+ "rows": [
+  {
+   "model": "MobileCLIP2-S0/dfndr2b",
+   "obj_top1": 0.11261261261261261,
+   "obj_top5": 0.23423423423423423,
+   "loc_top1": 0.12903225806451613,
+   "loc_top3": 0.34946236559139787,
+   "img_encoder_params_M": 11.406976,
+   "mps_ms_per_img": 18.738584475474315
+  },
+  {
+   "model": "MobileCLIP2-S2/dfndr2b",
+   "obj_top1": 0.14864864864864866,
+   "obj_top5": 0.2882882882882883,
+   "loc_top1": 0.22580645161290322,
+   "loc_top3": 0.3655913978494624,
+   "img_encoder_params_M": 35.815232,
+   "mps_ms_per_img": 24.93679308676505
+  },
+  {
+   "model": "ViT-B-16-SigLIP2-256/webli",
+   "obj_top1": 0.10810810810810811,
+   "obj_top5": 0.2702702702702703,
+   "loc_top1": 0.24193548387096775,
+   "loc_top3": 0.46774193548387094,
+   "img_encoder_params_M": 92.930304,
+   "mps_ms_per_img": 22.654486132097674
+  },
+  {
+   "model": "ViT-B-16/dfn2b",
+   "obj_top1": 0.11261261261261261,
+   "obj_top5": 0.28378378378378377,
+   "loc_top1": 0.15053763440860216,
+   "loc_top3": 0.3548387096774194,
+   "img_encoder_params_M": 86.19264,
+   "mps_ms_per_img": 13.023307731559685
+  },
+  {
+   "model": "ViT-L-14/dfn2b",
+   "obj_top1": 0.17117117117117117,
+   "obj_top5": 0.2882882882882883,
+   "loc_top1": 0.21505376344086022,
+   "loc_top3": 0.3978494623655914,
+   "img_encoder_params_M": 303.966208,
+   "mps_ms_per_img": 36.83982883487736
+  }
+ ]
+}
