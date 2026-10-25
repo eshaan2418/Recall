@@ -66,7 +66,7 @@ def main() -> None:
             ids = [q for q in ids if systems["B1-VLM-K16"][q].get("loc_correct") is not None]
         groups = np.array([systems["B1-VLM-K16"][q]["video_id"] for q in ids])
         vals = {n: np.array([float(bool(s[q].get(key, s[q].get("correct")))) for q in ids]) for n, s in systems.items()}
-        res = {n: dict(zip(("mean", "lo", "hi"), bootstrap_ci(v, groups=groups), strict=True)) for n, v in vals.items()}
+        res: dict = {n: dict(zip(("mean", "lo", "hi"), bootstrap_ci(v, groups=groups), strict=True)) for n, v in vals.items()}
         res["n"] = len(ids)
         for n in ("B1-VLM-K16", "B2-frame-CLIP-1s", "B0-prior"):
             d, dlo, dhi = paired_bootstrap_diff(vals["Recall-all-frames"], vals[n], groups=groups)
