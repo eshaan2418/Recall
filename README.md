@@ -19,7 +19,7 @@ without sending video anywhere.**
 
 ## Contents
 [The idea](#the-idea) · [How it works](#how-it-works) · [Results](#results-so-far) · [The app](#the-android-app) ·
-[Privacy](#privacy) · [Reproduce](#reproduce) · [Repo map](#repo-map) · [Limitations](#limitations--honest-caveats) · [Status](#status)
+[Privacy](#privacy) · [Reproduce](#reproduce) · [Repo map](#repo-map) · [Limitations](#limitations--honest-caveats)
 
 ## The idea
 
@@ -123,7 +123,7 @@ locally, median 6.6 s per answer, `desktop-proxy`):
   contact F1 0.87 (PyTorch); after dynamic INT8 0.88 / 0.82 at 1.5 MB. INT4 weights cost too much (contact F1 0.68).
 * The **embedder** shrinks from 144.1 MB (fp32) to 38.6 MB (INT8) and 23.2 MB (INT4 weights).
 * Latency numbers on this laptop are `desktop-proxy` only; **no phone was available, so there are no measured on-device
-  latency, battery or thermal numbers** — see [Status](#status).
+  latency, battery or thermal numbers**.
 
 ### 3 · Learned trigger, storage, calibration, energy (M2–M4, M8)
 
@@ -218,17 +218,6 @@ Project bookkeeping: [PROGRESS.md](PROGRESS.md) · [DECISIONS.md](DECISIONS.md) 
 * **Personal-data and user-study results don't exist yet**; the tooling and protocol are ready ([HUMAN_TODO.md](HUMAN_TODO.md)).
 * One design change was made after seeing the first test run (averaging place probabilities over candidate events); it was
   re-selected on validation data for every system and is disclosed in [DECISIONS.md](DECISIONS.md).
-
-## Status
-
-| Milestone | State |
-|---|---|
-| M0 bootstrap · M1 baselines · M6 Android app · M7 privacy | ✅ done |
-| M5 compression | ✅ export + student · ⏳ end-to-end table |
-| M2 trigger · M3 memory · M4 calibration · M8 energy (estimated) | ⏳ running |
-| M9 personal data | 🛠 tooling ready, stand-in run pending — needs your recordings |
-| M10 user study | 📋 package ready — needs ethics/consent + participants |
-| M11 paper / final review | ⏳ |
 
 ## Acknowledgements & licences
 
