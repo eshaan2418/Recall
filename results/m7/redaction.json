@@ -1,0 +1,816 @@
+{
+ "evidence_stage": "desktop-proxy",
+ "git_commit": "5f1021bf4553ec31fce927b96f51ceb6c933da72",
+ "git_dirty": true,
+ "hardware": {
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.12.14",
+  "cpu": "Apple M5 Pro"
+ },
+ "versions": {
+  "numpy": "2.5.4",
+  "torch": "2.14.1",
+  "transformers": "5.20.1",
+  "open_clip": "3.3.0",
+  "sklearn": "1.9.1"
+ },
+ "seed": 0,
+ "config": {
+  "face_detector": {
+   "model": "MediaPipe BlazeFace short-range (float16, v1)",
+   "url": "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+   "sha256": "b4578f35940bf5a1a655214a1cce5cab13eba73c1297cd78e1a04c2380b0152f",
+   "licence": "Apache-2.0 (Google MediaPipe)",
+   "score_threshold": 0.4,
+   "box_padding": 0.25,
+   "nms": false
+  },
+  "screen_detector": {
+   "grid": [
+    16,
+    9
+   ],
+   "min_mean_luma": 150.0,
+   "min_edge_density": 0.1,
+   "edge_step": 40.0
+  },
+  "pixelate_block_px": "max(6, min(box_w, box_h) // 6)",
+  "thumbnail": [
+   160,
+   90
+  ],
+  "coverage_threshold": 0.7,
+  "n_bootstrap": 2000,
+  "port_of": {
+   "android/app/src/main/java/ai/recall/privacy/Detectors.kt": "4c9f3bad5ab84ecad3eca0490e34ac307eccbaa568cc525660bf9584a9fdd818",
+   "android/app/src/main/java/ai/recall/privacy/Redactor.kt": "f8c812d2602dc6ea511341910a670dd8a7d152bebacda7cbef383e7906c5b57a"
+  },
+  "lib_versions": {
+   "ai_edge_litert": "2.2.0",
+   "pillow": "13.0.0"
+  },
+  "limit": null,
+  "n_synth": 1000
+ },
+ "timestamp": "2026-10-25T18:57:45+00:00",
+ "faces": {
+  "dataset": {
+   "name": "WIDER FACE",
+   "split": "val",
+   "source": "https://huggingface.co/datasets/CUHK-CSE/wider_face/resolve/main/data/WIDER_val.zip",
+   "sha256": {
+    "wider_face_split.zip": "c7561e4f5e7a118c249e0a5c5c902b0de90bbf120d7da9fa28d99041f68a8a5c",
+    "WIDER_val.zip": "f9efbd09f28c5d2d884be8c0eaef3967158c866a593fc36ab0413e4b2a58a17a"
+   },
+   "licence": "CC BY-NC-ND 4.0 (WIDER FACE; non-commercial research use). Not redistributed or committed.",
+   "egocentric": false,
+   "note": "WIDER FACE is third-person web photography (events, crowds, portraits), NOT egocentric video. Faces in head-worn footage are typically bystanders at conversational distance, often partially out of frame or motion-blurred; these numbers are a desktop proxy for the on-device redactor, not a measurement on Recall's target distribution.",
+   "n_images": 3226,
+   "n_faces_valid": 39112,
+   "subsampled": false
+  },
+  "protocol": {
+   "input": "whole WIDER image (the device redacts an event crop, see Pipeline.crop)",
+   "coverage_threshold": 0.7,
+   "invalid_boxes": "excluded from recall, included in GT face area for over-redaction"
+  },
+  "recall": {
+   "face_detector": {
+    "overall": {
+     "point": 0.06458375946001227,
+     "ci95": [
+      0.057013384234015425,
+      0.07354392329919252
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "by_face_height_px": {
+     "[0,10)": {
+      "point": 0.005197668924240038,
+      "ci95": [
+       0.0011317292693592122,
+       0.011399714883461481
+      ],
+      "n": 6349,
+      "n_images": 322
+     },
+     "[10,50)": {
+      "point": 0.008728473696626562,
+      "ci95": [
+       0.006501171665043951,
+       0.011538173790922288
+      ],
+      "n": 25434,
+      "n_images": 1407
+     },
+     "[50,300)": {
+      "point": 0.2693759071117562,
+      "ci95": [
+       0.2524232111588965,
+       0.2875571143384738
+      ],
+      "n": 6890,
+      "n_images": 2265
+     },
+     "[300,100000)": {
+      "point": 0.9453302961275627,
+      "ci95": [
+       0.9216589861751152,
+       0.9667575250184961
+      ],
+      "n": 439,
+      "n_images": 401
+     }
+    },
+    "by_face_height_frac_of_image": {
+     "[0.0,0.05)": {
+      "point": 0.007408462743980624,
+      "ci95": [
+       0.004972696387819769,
+       0.010506201980382877
+      ],
+      "n": 28076,
+      "n_images": 1191
+     },
+     "[0.05,0.1)": {
+      "point": 0.044053503925559755,
+      "ci95": [
+       0.037075769293298665,
+       0.051647355343010314
+      ],
+      "n": 6878,
+      "n_images": 1441
+     },
+     "[0.1,0.2)": {
+      "point": 0.3453287197231834,
+      "ci95": [
+       0.32017896320968764,
+       0.3726836615326426
+      ],
+      "n": 2890,
+      "n_images": 1272
+     },
+     "[0.2,0.4)": {
+      "point": 0.7803410230692076,
+      "ci95": [
+       0.7444098440391529,
+       0.8146206727901183
+      ],
+      "n": 997,
+      "n_images": 695
+     },
+     "[0.4,10.0)": {
+      "point": 0.8819188191881919,
+      "ci95": [
+       0.8357664233576643,
+       0.9225163474061211
+      ],
+      "n": 271,
+      "n_images": 247
+     }
+    },
+    "mean_covered_fraction": 0.0651572175260125
+   },
+   "full_redactor": {
+    "overall": {
+     "point": 0.0800777255062385,
+     "ci95": [
+      0.07132898208866816,
+      0.09085620153048327
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "by_face_height_px": {
+     "[0,10)": {
+      "point": 0.027878406048196566,
+      "ci95": [
+       0.015730205463453134,
+       0.04819412656377534
+      ],
+      "n": 6349,
+      "n_images": 322
+     },
+     "[10,50)": {
+      "point": 0.02606746874262798,
+      "ci95": [
+       0.02146588551811773,
+       0.031268167263525694
+      ],
+      "n": 25434,
+      "n_images": 1407
+     },
+     "[50,300)": {
+      "point": 0.27242380261248184,
+      "ci95": [
+       0.2556091539416593,
+       0.2908919360093655
+      ],
+      "n": 6890,
+      "n_images": 2265
+     },
+     "[300,100000)": {
+      "point": 0.9453302961275627,
+      "ci95": [
+       0.9216589861751152,
+       0.9667575250184961
+      ],
+      "n": 439,
+      "n_images": 401
+     }
+    },
+    "by_face_height_frac_of_image": {
+     "[0.0,0.05)": {
+      "point": 0.026463883744123094,
+      "ci95": [
+       0.02048192637688749,
+       0.03394282198757163
+      ],
+      "n": 28076,
+      "n_images": 1191
+     },
+     "[0.05,0.1)": {
+      "point": 0.05321314335562664,
+      "ci95": [
+       0.04591435807288927,
+       0.0606864139981569
+      ],
+      "n": 6878,
+      "n_images": 1441
+     },
+     "[0.1,0.2)": {
+      "point": 0.3480968858131488,
+      "ci95": [
+       0.3229426413323135,
+       0.3752757430624031
+      ],
+      "n": 2890,
+      "n_images": 1272
+     },
+     "[0.2,0.4)": {
+      "point": 0.7803410230692076,
+      "ci95": [
+       0.7444098440391529,
+       0.8146206727901183
+      ],
+      "n": 997,
+      "n_images": 695
+     },
+     "[0.4,10.0)": {
+      "point": 0.8819188191881919,
+      "ci95": [
+       0.8357664233576643,
+       0.9225163474061211
+      ],
+      "n": 271,
+      "n_images": 247
+     }
+    },
+    "mean_covered_fraction": 0.08482185485923299
+   }
+  },
+  "recall_vs_coverage_threshold": {
+   "0.5": {
+    "face_detector": {
+     "point": 0.06698711392922888,
+     "ci95": [
+      0.05920148703341345,
+      0.07626592011903267
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "full_redactor": {
+     "point": 0.08567703006749847,
+     "ci95": [
+      0.07638319668813334,
+      0.09712935830454875
+     ],
+     "n": 39112,
+     "n_images": 3222
+    }
+   },
+   "0.7": {
+    "face_detector": {
+     "point": 0.06458375946001227,
+     "ci95": [
+      0.057013384234015425,
+      0.07354392329919252
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "full_redactor": {
+     "point": 0.0800777255062385,
+     "ci95": [
+      0.07132898208866816,
+      0.09085620153048327
+     ],
+     "n": 39112,
+     "n_images": 3222
+    }
+   },
+   "0.9": {
+    "face_detector": {
+     "point": 0.05456125997136429,
+     "ci95": [
+      0.04798226128777304,
+      0.06237885415484218
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "full_redactor": {
+     "point": 0.06783084475352832,
+     "ci95": [
+      0.060139141158253105,
+      0.0770841422741121
+     ],
+     "n": 39112,
+     "n_images": 3222
+    }
+   }
+  },
+  "over_redaction": {
+   "image_fraction_redacted_face_detector": {
+    "point": 0.07395361014904149,
+    "ci95": [
+     0.06994826717219904,
+     0.07797086791049634
+    ],
+    "n": 3226
+   },
+   "image_fraction_redacted_screen_detector": {
+    "point": 0.01856121507855138,
+    "ci95": [
+     0.01718092541140561,
+     0.020117609765580424
+    ],
+    "n": 3226
+   },
+   "image_fraction_redacted_full": {
+    "point": 0.09242283044283758,
+    "ci95": [
+     0.08839569847835557,
+     0.0965019537959728
+    ],
+    "n": 3226
+   },
+   "non_face_area_fraction_redacted_full": {
+    "point": 0.06791960761340055,
+    "ci95": [
+     0.06469822551820767,
+     0.07114098582474083
+    ],
+    "n": 3226
+   },
+   "fraction_images_with_any_face_box": 0.5449473031618103,
+   "mean_face_boxes_per_image_no_nms": 5.178239305641662
+  },
+  "face_threshold_sweep": [
+   {
+    "score_threshold": 0.3,
+    "recall": {
+     "point": 0.09679893638780937,
+     "ci95": [
+      0.0801126111723989,
+      0.11914540237890126
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "image_fraction_redacted": {
+     "point": 0.1006054059701891,
+     "ci95": [
+      0.09599527798065002,
+      0.10505372290903149
+     ],
+     "n": 3226
+    }
+   },
+   {
+    "score_threshold": 0.4,
+    "recall": {
+     "point": 0.06458375946001227,
+     "ci95": [
+      0.057013384234015425,
+      0.07354392329919252
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "image_fraction_redacted": {
+     "point": 0.07395361014904149,
+     "ci95": [
+      0.06994826717219904,
+      0.07797086791049634
+     ],
+     "n": 3226
+    }
+   },
+   {
+    "score_threshold": 0.5,
+    "recall": {
+     "point": 0.050853957864593985,
+     "ci95": [
+      0.04491146898374185,
+      0.05814351874857852
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "image_fraction_redacted": {
+     "point": 0.058938699903483605,
+     "ci95": [
+      0.055167769231683546,
+      0.0627712067697891
+     ],
+     "n": 3226
+    }
+   },
+   {
+    "score_threshold": 0.6,
+    "recall": {
+     "point": 0.040908161178155045,
+     "ci95": [
+      0.03609664235809495,
+      0.04702517291887159
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "image_fraction_redacted": {
+     "point": 0.04873637864834725,
+     "ci95": [
+      0.04528651667938392,
+      0.05221872850215048
+     ],
+     "n": 3226
+    }
+   },
+   {
+    "score_threshold": 0.75,
+    "recall": {
+     "point": 0.028431172018817754,
+     "ci95": [
+      0.024844403190696043,
+      0.03280838633062503
+     ],
+     "n": 39112,
+     "n_images": 3222
+    },
+    "image_fraction_redacted": {
+     "point": 0.03702877990701607,
+     "ci95": [
+      0.034087267242239656,
+      0.040140198043322674
+     ],
+     "n": 3226
+    }
+   }
+  ],
+  "seconds": 642.9
+ },
+ "screens_documents": {
+  "dataset": {
+   "name": "Recall synthetic screen/document composites (recall/privacy/synth.py)",
+   "synthetic": true,
+   "egocentric": false,
+   "note": "SYNTHETIC: procedural backgrounds + rendered text/UI patches with random perspective. No EPIC frames, no photographs. Measures the heuristic's behaviour on clean rendered text; real screens (glare, moire, reflections, motion blur) are harder.",
+   "n_images": 1000,
+   "n_positive_regions": 1240,
+   "n_distractor_regions": 1015,
+   "n_negative_only_images": 150,
+   "seed": 0,
+   "digest_sha256": "de5570b061e6c9b9877afc9e9804bd324a6c8d1b01667842f84bc10f5b004747",
+   "face_detector_in_pipeline": true
+  },
+  "protocol": {
+   "coverage_threshold": 0.7,
+   "gt": "pixel mask of the warped display / paper / label area"
+  },
+  "recall": {
+   "screen_detector": {
+    "overall": {
+     "point": 0.14596774193548387,
+     "ci95": [
+      0.12622053504454422,
+      0.16693629149184597
+     ],
+     "n": 1240,
+     "n_images": 850
+    },
+    "by_kind": {
+     "document": {
+      "point": 0.31141868512110726,
+      "ci95": [
+       0.2578370271920687,
+       0.3686049346320002
+      ],
+      "n": 289,
+      "n_images": 269
+     },
+     "screen_light": {
+      "point": 0.25675675675675674,
+      "ci95": [
+       0.20208969738914612,
+       0.3079473063085772
+      ],
+      "n": 296,
+      "n_images": 268
+     },
+     "screen_dark": {
+      "point": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "n": 336,
+      "n_images": 310
+     },
+     "label": {
+      "point": 0.047021943573667714,
+      "ci95": [
+       0.022222222222222223,
+       0.07279640006450046
+      ],
+      "n": 319,
+      "n_images": 286
+     }
+    },
+    "by_area_frac_of_image": {
+     "[0.0,0.01)": {
+      "point": 0.08009708737864078,
+      "ci95": [
+       0.05378973105134474,
+       0.10896544935235898
+      ],
+      "n": 412,
+      "n_images": 367
+     },
+     "[0.01,0.03)": {
+      "point": 0.1076923076923077,
+      "ci95": [
+       0.0776953606403138,
+       0.14031409438775505
+      ],
+      "n": 390,
+      "n_images": 352
+     },
+     "[0.03,0.1)": {
+      "point": 0.2543103448275862,
+      "ci95": [
+       0.19913419913419914,
+       0.313828722406579
+      ],
+      "n": 232,
+      "n_images": 216
+     },
+     "[0.1,1.01)": {
+      "point": 0.22815533980582525,
+      "ci95": [
+       0.1732625666412795,
+       0.28780487804878047
+      ],
+      "n": 206,
+      "n_images": 202
+     }
+    },
+    "by_text_height_px": {
+     "[0,8)": {
+      "point": 0.07,
+      "ci95": [
+       0.03607784826856991,
+       0.10554096238769599
+      ],
+      "n": 200,
+      "n_images": 190
+     },
+     "[8,14)": {
+      "point": 0.15328467153284672,
+      "ci95": [
+       0.12406362007168459,
+       0.18264403352194286
+      ],
+      "n": 548,
+      "n_images": 468
+     },
+     "[14,100)": {
+      "point": 0.16869918699186992,
+      "ci95": [
+       0.135183378258059,
+       0.20204134231011994
+      ],
+      "n": 492,
+      "n_images": 432
+     }
+    },
+    "mean_covered_fraction": 0.22033583165646636
+   },
+   "full_redactor": {
+    "overall": {
+     "point": 0.1814516129032258,
+     "ci95": [
+      0.15977321688425347,
+      0.20388388948916739
+     ],
+     "n": 1240,
+     "n_images": 850
+    },
+    "by_kind": {
+     "document": {
+      "point": 0.3356401384083045,
+      "ci95": [
+       0.28125,
+       0.3936224861556397
+      ],
+      "n": 289,
+      "n_images": 269
+     },
+     "screen_light": {
+      "point": 0.2972972972972973,
+      "ci95": [
+       0.24322276822276823,
+       0.3525423728813559
+      ],
+      "n": 296,
+      "n_images": 268
+     },
+     "screen_dark": {
+      "point": 0.026785714285714284,
+      "ci95": [
+       0.011730205278592375,
+       0.04477611940298507
+      ],
+      "n": 336,
+      "n_images": 310
+     },
+     "label": {
+      "point": 0.09717868338557993,
+      "ci95": [
+       0.06269102664576802,
+       0.1323123028391167
+      ],
+      "n": 319,
+      "n_images": 286
+     }
+    },
+    "by_area_frac_of_image": {
+     "[0.0,0.01)": {
+      "point": 0.13592233009708737,
+      "ci95": [
+       0.10436261430687134,
+       0.17183958693302973
+      ],
+      "n": 412,
+      "n_images": 367
+     },
+     "[0.01,0.03)": {
+      "point": 0.13846153846153847,
+      "ci95": [
+       0.10566654147023778,
+       0.17468354430379746
+      ],
+      "n": 390,
+      "n_images": 352
+     },
+     "[0.03,0.1)": {
+      "point": 0.2801724137931034,
+      "ci95": [
+       0.22172662562524048,
+       0.3392070484581498
+      ],
+      "n": 232,
+      "n_images": 216
+     },
+     "[0.1,1.01)": {
+      "point": 0.24271844660194175,
+      "ci95": [
+       0.18446601941747573,
+       0.3054187192118227
+      ],
+      "n": 206,
+      "n_images": 202
+     }
+    },
+    "by_text_height_px": {
+     "[0,8)": {
+      "point": 0.095,
+      "ci95": [
+       0.05583756345177665,
+       0.1365971276464033
+      ],
+      "n": 200,
+      "n_images": 190
+     },
+     "[8,14)": {
+      "point": 0.19525547445255476,
+      "ci95": [
+       0.16240637596688093,
+       0.22965641952983726
+      ],
+      "n": 548,
+      "n_images": 468
+     },
+     "[14,100)": {
+      "point": 0.20121951219512196,
+      "ci95": [
+       0.16632432859332244,
+       0.23674002130972868
+      ],
+      "n": 492,
+      "n_images": 432
+     }
+    },
+    "mean_covered_fraction": 0.25783143037084844
+   }
+  },
+  "recall_vs_coverage_threshold": {
+   "0.5": {
+    "point": 0.29838709677419356,
+    "ci95": [
+     0.2720570272082774,
+     0.32508036543920166
+    ],
+    "n": 1240,
+    "n_images": 850
+   },
+   "0.7": {
+    "point": 0.1814516129032258,
+    "ci95": [
+     0.15977321688425347,
+     0.20388388948916739
+    ],
+    "n": 1240,
+    "n_images": 850
+   },
+   "0.9": {
+    "point": 0.056451612903225805,
+    "ci95": [
+     0.043336947462649704,
+     0.07005220349009167
+    ],
+    "n": 1240,
+    "n_images": 850
+   }
+  },
+  "over_redaction": {
+   "image_fraction_redacted_full": {
+    "point": 0.06091465001356336,
+    "ci95": [
+     0.053861729339124885,
+     0.06792392180340236
+    ],
+    "n": 1000
+   },
+   "non_sensitive_area_fraction_redacted_full": {
+    "point": 0.044212307196704714,
+    "ci95": [
+     0.03730149016206368,
+     0.051293688635019666
+    ],
+    "n": 1000
+   },
+   "image_fraction_redacted_negative_only_images": {
+    "point": 0.043760580168547454,
+    "ci95": [
+     0.029824342881944445,
+     0.060804634110514316
+    ],
+    "n": 150
+   },
+   "distractor_redacted_at_coverage": {
+    "tiles": {
+     "point": 0.37797619047619047,
+     "ci95": [
+      0.3273809523809524,
+      0.43154761904761907
+     ],
+     "n": 336,
+     "mean_covered_fraction": 0.47518113586236005
+    },
+    "plate": {
+     "point": 0.02,
+     "ci95": [
+      0.005714285714285714,
+      0.037142857142857144
+     ],
+     "n": 350,
+     "mean_covered_fraction": 0.03635271145984103
+    },
+    "pattern": {
+     "point": 0.1458966565349544,
+     "ci95": [
+      0.1094224924012158,
+      0.18541033434650456
+     ],
+     "n": 329,
+     "mean_covered_fraction": 0.1794905421391357
+    }
+   }
+  },
+  "seconds": 74.7
+ }
+}

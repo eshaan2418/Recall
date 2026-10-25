@@ -46,7 +46,7 @@ compress: export
 baseline-vlm:
 	$(PY) -m recall.baselines.vlm
 privacy-eval:
-	$(PY) -m recall.privacy.eval
+	$(PY) -m recall.privacy.eval && $(PY) -m recall.privacy.report
 energy:
 	$(PY) -m recall.energy.model
 energy-device:

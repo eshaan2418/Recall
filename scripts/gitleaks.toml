@@ -1,0 +1,12 @@
+# gitleaks config for Recall: default rules + one narrow allow-list.
+# Used by scripts/scan_repo.sh. For the CI gitleaks-action, copy/symlink to .gitleaks.toml at the repo root
+# (or set GITLEAKS_CONFIG=scripts/gitleaks.toml).
+title = "recall"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "provenance headers: the git commit SHA written into every results/*.json (recall.bench.common.result_header)"
+regexTarget = "line"
+regexes = ['''^\s*"git_commit":\s*"[0-9a-f]{40}",?\s*$''']
