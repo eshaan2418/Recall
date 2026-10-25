@@ -24,7 +24,7 @@ def f2(x: float | None) -> str:
 
 
 def main() -> None:
-    m1, pp, b1 = _load("m1/systems_test.json"), _load("m1/prior_and_paired.json"), _load("m1/b1_vlm_K16.json")
+    m1, pp, _b1 = _load("m1/systems_test.json"), _load("m1/prior_and_paired.json"), _load("m1/b1_vlm_K16.json")
     m2, m3, m4 = _load("m2/pareto_test.json"), _load("m3/memory_storage.json"), _load("m4/calibration_test.json")
     m5, m7, m8 = _load("m5/compression.json"), _load("m7/redaction.json"), _load("m8/energy_model.json")
     mac: dict[str, str] = {}
@@ -38,7 +38,7 @@ def main() -> None:
 
     S = (m1 or {}).get("systems", {})
     mac["RecallLoc"] = get(lambda: S["Recall-all-frames"]["metrics"]["where_loc_acc"]["mean"])
-    mac["PriorLoc"] = get(lambda: pp["B0_prior"]["test_where_loc_acc"]["mean"])
+    mac["PriorLoc"] = get(lambda: pp["B0_prior"]["test_where_loc_acc"]["mean"])  # type: ignore[index]
     W = (pp or {}).get("paired_on_B1_subsample", {}).get("where", {})
     A = (pp or {}).get("paired_on_B1_subsample", {}).get("absent", {})
     mac["RecallLocSub"] = get(lambda: W["Recall-all-frames"]["mean"])
@@ -51,7 +51,7 @@ def main() -> None:
     mac["HallDiff"] = get(lambda: A["Recall_minus_B1-VLM-K16"]["delta"])
     mac["HallDiffLo"] = get(lambda: A["Recall_minus_B1-VLM-K16"]["lo"])
     mac["HallDiffHi"] = get(lambda: A["Recall_minus_B1-VLM-K16"]["hi"])
-    mac["ObjHeadVal"] = get(lambda: m1["heads"]["obj"]["best_val_acc"])
+    mac["ObjHeadVal"] = get(lambda: m1["heads"]["obj"]["best_val_acc"])  # type: ignore[index]
     n = (m1 or {}).get("n_videos", {})
     nq = (m1 or {}).get("n_queries_test", {})
     for k, key in (("NTrainVideos", "train"), ("NValVideos", "val"), ("NTestVideos", "test")):
@@ -77,11 +77,15 @@ def main() -> None:
             mac["TrigAccAll"] = f2(allf)
             mac["TrigAccOracle"] = f2(orc["metrics"]["where_acc"]["mean"]) if orc else PENDING
             mac["TrigAccUniform"] = f2(uni[0]["metrics"]["where_acc"]["mean"]) if uni else PENDING
-            ap = [g["test_ap"] for k, g in _load("m2/gate_training.json")["gates"].items() if k.startswith("learned+imu")]  # type: ignore[index]
+            ap = [
+                g["test_ap"] for k, g in _load("m2/gate_training.json")["gates"].items() if k.startswith("learned+imu")  # type: ignore[index]
+            ]  # type: ignore[index]
             mac["GateAP"] = f2(sum(ap) / len(ap))
             mac["GateParams"] = str(next(iter(_load("m2/gate_training.json")["gates"].values()))["params"])  # type: ignore[index]
-            trig = (r"With the learned trigger at a 20\,\% budget, heavy perception runs on \TrigFrac{} of frames "
-                    r"(\TrigSkip{} skipped) at ``where'' accuracy \TrigAcc{} vs.\ \TrigAccAll{} with all frames.")
+            trig = (
+                r"With the learned trigger at a 20\,\% budget, heavy perception runs on \TrigFrac{} of frames "
+                r"(\TrigSkip{} skipped) at ``where'' accuracy \TrigAcc{} vs.\ \TrigAccAll{} with all frames."
+            )
         sections.append(r"""\section{Learned Trigger}\label{sec:trigger}
 \begin{figure}[t]\centering\includegraphics[width=\linewidth]{figs/pareto.png}
 \caption{Accuracy vs.\ fraction of frames sent to heavy perception (test; learned gates averaged over 3 seeds).}\label{fig:pareto}\end{figure}
@@ -106,8 +110,10 @@ to their confidence intervals; the trigger's value here is compute, not accuracy
         ls = next((r for r in summ if r["policy"].startswith("learned")), summ[0])
         mac["EventsPerHour"] = f"{ls['events_per_hour']:.0f}"
         mac["QueryP95"] = f"{ls['query_latency_ms_p95']:.1f}"
-        st = (r"Event memory projects to \StoreGBWeek{}\,GB/week (vs.\ \KeyframeGBWeek{}\,GB/week for 2\,s keyframes); "
-              r"query latency p95 \QueryP95\,ms on a laptop.")
+        st = (
+            r"Event memory projects to \StoreGBWeek{}\,GB/week (vs.\ \KeyframeGBWeek{}\,GB/week for 2\,s keyframes); "
+            r"query latency p95 \QueryP95\,ms on a laptop."
+        )
         sections.append(r"""\section{Compact Event Memory}\label{sec:memory}
 \begin{figure}[t]\centering\includegraphics[width=\linewidth]{figs/storage.png}
 \caption{Accuracy vs.\ projected storage (16 recorded hours/day, an assumption).}\label{fig:storage}\end{figure}
