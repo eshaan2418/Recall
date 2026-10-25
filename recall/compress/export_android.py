@@ -118,8 +118,9 @@ def main() -> None:
     (OUT / "answer_config.json").write_text(
         json.dumps({"configs": conf, "gate_threshold": p_gate, "operating_budget": a.budget, **sp})
     )
+    chosen = {"embedder": "int8w", "gate": a.precision, "hoi_student": a.precision}  # per M5 cost table
     for name in ("embedder", "gate", "hoi_student"):
-        src = OUT / f"{name}_{a.precision}.tflite"
+        src = OUT / f"{name}_{chosen[name]}.tflite"
         if src.exists():
             shutil.copy(src, OUT / f"{name}.tflite")
     print("bundle written to", OUT, "gate threshold p =", p_gate, "calibrator threshold", th)

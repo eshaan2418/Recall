@@ -11,7 +11,7 @@ Models and I/O contracts (must match ``android/app/src/main/java/ai/recall/ml/Mo
 * ``gate``        TinyGate. in ``x [1,8,9,36,64]``, ``imu [1,8,7]`` → out logit ``[1]``.
 * ``hoi_student`` HOIStudent. in ``[1,3,144,256]`` RGB 0..1 → out ``[1,2,14]``.
 
-Precisions: ``fp32`` · ``int8dyn`` (int8 weights, dynamic-range activations) · ``int8`` (static full-int8
+Precisions: ``fp32`` · ``int8w`` (int8 weight-only) · ``int8dyn`` (int8 weights, dynamic-range activations) · ``int8`` (static full-int8
 weights+activations, calibrated on train-split inputs only) · ``int4w`` (int4 channel-wise weights, fp32 act).
 """
 
@@ -29,7 +29,7 @@ import torch
 from recall.paths import CACHE, REPO
 
 OUT = REPO / "models" / "litert"
-PRECISIONS = ("fp32", "int8dyn", "int8", "int4w")
+PRECISIONS = ("fp32", "int8w", "int8dyn", "int8", "int4w")
 
 
 class _Embed(torch.nn.Module):
@@ -73,7 +73,9 @@ def convert_fp32(module: torch.nn.Module, sample: tuple[torch.Tensor, ...], out:
 def quantize(fp32: Path, precision: str, calib: list[tuple[np.ndarray, ...]] | None, out: Path) -> Path:
     from ai_edge_quantizer import quantizer, recipe
 
-    if precision == "int8dyn":
+    if precision == "int8w":
+        rcp = recipe.weight_only_wi8_afp32()  # int8 weights, dequantised to fp32 at load: best accuracy/size here
+    elif precision == "int8dyn":
         rcp = recipe.dynamic_wi8_afp32()
     elif precision == "int4w":
         rcp = recipe.dynamic_wi4_afp32()

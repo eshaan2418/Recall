@@ -38,7 +38,7 @@ from recall.perception.heads import Heads
 from recall.perception.vocab import location_ids
 
 MODEL = "MobileCLIP2-S2"
-PRECS = ("fp32", "int8dyn", "int8", "int4w")
+PRECS = ("fp32", "int8w", "int8dyn", "int8", "int4w")
 
 
 def e2e_videos() -> list[str]:
@@ -194,8 +194,8 @@ def student_hoi_fn(path: Path):
 E2E = {  # name -> (hoi student precision or None for teacher, embedder precision or None for cached torch)
     "teacher-HOI+torch-embedder": (None, None),
     "student-HOI+fp32": ("fp32", "fp32"),
-    "student-HOI+int8dyn": ("int8dyn", "int8dyn"),
-    "student-HOI+int8dyn+emb-int4w": ("int8dyn", "int4w"),
+    "student-HOI+int8": ("int8dyn", "int8w"),  # the shipped configuration
+    "student-HOI+int8+emb-int8dyn": ("int8dyn", "int8dyn"),
 }
 
 
