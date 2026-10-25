@@ -56,27 +56,119 @@ def _m(d: dict | None, key: str) -> tuple[float, float, float]:
 
 def fig_m1() -> None:
     r = _load("m1/systems_test.json")
+    pp = _load("m1/prior_and_paired.json")
     if not r:
         return
-    names = [n for n in r["systems"] if not n.startswith("B3") or n == "B3-manual-q0.5"]
-    b1 = _load("m1/b1_vlm_K16.json")
-    fig, ax = plt.subplots(figsize=(6.4, 3.0))
-    y = np.arange(len(names) + (1 if b1 else 0))
-    vals = [_m(r["systems"][n]["metrics"], "where_acc") for n in names]
-    if b1:
-        names = [*names, f"B1-{b1['config'].get('model', 'VLM').split('/')[-1]} (subsample)"]
-        vals.append(_m(b1["metrics"], "where_acc"))
-    m = np.array([v[0] for v in vals])
-    err = np.array([[v[0] - v[1], v[2] - v[0]] for v in vals]).T
-    colors = [S1 if n.startswith("Recall") else MUTED for n in names]
-    ax.barh(y, m, xerr=err, color=colors, height=0.6, error_kw={"ecolor": INK2, "lw": 1})
-    ax.set_yticks(y, names)
+    # (a) full test set: location accuracy per system
+    names = [
+        "Recall-all-frames",
+        "B4-oracle-trigger",
+        "B2-frame-CLIP-1s",
+        "B2-frame-CLIP-5s",
+        "B2-frame-CLIP-30s",
+        "B3-manual-q0.5",
+    ]
+    rows = [(n, _m(r["systems"][n]["metrics"], "where_loc_acc")) for n in names if n in r["systems"]]
+    if pp:
+        rows.append(
+            (
+                "B0-prior (always 'drying rack')",
+                tuple(pp["B0_prior"]["test_where_loc_acc"][k] for k in ("mean", "lo", "hi")),
+            )
+        )
+    fig, ax = plt.subplots(figsize=(6.4, 3.1))
+    _hbar(ax, rows, 'place accuracy, "where is X?" (test, 95% CI)')
+    _save(fig, "m1/figs/where_acc.png")
+    if not pp:
+        return
+    # (b) the B1 subsample: place accuracy and hallucination on never-seen objects, paired
+    w, ab = pp["paired_on_B1_subsample"]["where"], pp["paired_on_B1_subsample"]["absent"]
+    order = ["Recall-all-frames", "B2-frame-CLIP-1s", "B1-VLM-K16", "B0-prior"]
+    label = {
+        "Recall-all-frames": "Recall",
+        "B2-frame-CLIP-1s": "B2 frame+CLIP",
+        "B1-VLM-K16": "B1 Qwen3-VL-8B",
+        "B0-prior": "B0 prior",
+    }
+    fig, axes = plt.subplots(1, 2, figsize=(7.6, 2.8))
+    _hbar(
+        axes[0],
+        [(label[n], (w[n]["mean"], w[n]["lo"], w[n]["hi"])) for n in order],
+        f"place accuracy (n={w['n']} where-queries)",
+    )
+    _hbar(
+        axes[1],
+        [(label[n], (1 - ab[n]["mean"], 1 - ab[n]["hi"], 1 - ab[n]["lo"])) for n in order],
+        f"answers for never-seen objects (n={ab['n']}; lower = better)",
+    )
+    _save(fig, "m1/figs/b1_subsample.png")
+
+
+def _hbar(ax, rows: list, xlabel: str, lower_better: bool = False) -> None:
+    y = np.arange(len(rows))
+    m = np.array([v[0] for _, v in rows], float)
+    err = np.array([[v[0] - v[1], v[2] - v[0]] for _, v in rows], float).T
+    colors = [S1 if n.startswith("Recall") else MUTED for n, _ in rows]
+    ax.barh(y, m, xerr=np.clip(err, 0, None), color=colors, height=0.62, error_kw={"ecolor": INK2, "lw": 1})
+    ax.set_yticks(y, [n for n, _ in rows])
     ax.invert_yaxis()
-    ax.set_xlabel('"Where is X?" accuracy (test, 95% cluster-bootstrap CI)')
+    ax.set_xlabel(xlabel + ("  (lower is better)" if lower_better else ""))
+    ax.grid(axis="y", visible=False)
     for yi, mi in zip(y, m, strict=True):
         if np.isfinite(mi):
-            ax.text(mi + 0.01, float(yi), f"{mi:.2f}", va="center", color=INK2, fontsize=8)
-    _save(fig, "m1/figs/where_acc.png")
+            ax.text(mi + 0.01, float(yi) + 0.28, f"{mi:.2f}", va="bottom", color=INK2, fontsize=8)
+
+
+def fig_m5() -> None:
+    r = _load("m5/compression.json")
+    if not r or "C_hoi_student" not in r:
+        return
+    c = r["C_hoi_student"]
+    mf = r.get("manifest") or {}
+    precs = [p for p in ("torch-fp32", "litert-fp32", "litert-int8dyn", "litert-int8", "litert-int4w") if p in c]
+    fig, axes = plt.subplots(1, 2, figsize=(7.6, 2.8))
+    x = np.arange(len(precs))
+    for k, (key, col, lab) in enumerate(
+        (
+            ("hand_present_f1", S1, "hand present F1"),
+            ("contact_f1", S2, "contact F1"),
+            ("obj_box_iou_mean", S3, "object-box IoU"),
+        )
+    ):
+        axes[0].bar(x + (k - 1) * 0.26, [c[p][key] or 0 for p in precs], 0.24, color=col, label=lab)
+    axes[0].set_xticks(x, [p.replace("litert-", "") for p in precs], fontsize=8)
+    axes[0].set_ylabel("agreement with teacher (test)")
+    axes[0].legend(fontsize=7, loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=3)
+    axes[0].set_title("hand–object student vs Faster R-CNN teacher", fontsize=9)
+    sizes = [(n.replace("_", " "), v["bytes"] / 1e6) for n, v in mf.items() if isinstance(v, dict) and "bytes" in v]
+    if sizes:
+        sizes.sort(key=lambda t: -t[1])
+        axes[1].barh(
+            np.arange(len(sizes)),
+            [b for _, b in sizes],
+            color=[S1 if "embedder" in n else S2 if "hoi" in n else S3 for n, _ in sizes],
+        )
+        axes[1].set_yticks(np.arange(len(sizes)), [n for n, _ in sizes], fontsize=7)
+        axes[1].invert_yaxis()
+        axes[1].set_xscale("log")
+        axes[1].set_xlabel("LiteRT model size, MB (log)")
+        axes[1].grid(axis="y", visible=False)
+    _save(fig, "m5/figs/compression.png")
+
+
+def fig_m7() -> None:
+    r = _load("m7/redaction.json")
+    if not r:
+        return
+    f = r["faces"]["recall"]["face_detector"]["by_face_height_px"]
+    sd = r["screens_documents"]["recall"]["screen_detector"]["by_kind"]
+    fig, axes = plt.subplots(1, 2, figsize=(7.6, 2.6))
+    labs = {"[0,10)": "<10", "[10,50)": "10–50", "[50,300)": "50–300", "[300,100000)": "≥300"}
+    rows = [(labs.get(k, k) + " px", (v["point"], v["ci95"][0], v["ci95"][1])) for k, v in f.items()]
+    _hbar(axes[0], rows, "faces redacted (WIDER FACE val, by face height)")
+    rows = [(k.replace("_", " "), (v["point"], v["ci95"][0], v["ci95"][1])) for k, v in sd.items()]
+    _hbar(axes[1], rows, "screens/documents redacted (synthetic)")
+    _save(fig, "m7/figs/redaction.png")
 
 
 def fig_m2() -> None:
@@ -195,7 +287,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--allow-missing", action="store_true")
     a = ap.parse_args()
-    for f in (fig_m1, fig_m2, fig_m3, fig_m4, fig_m8):
+    for f in (fig_m1, fig_m2, fig_m3, fig_m4, fig_m5, fig_m7, fig_m8):
         try:
             f()
         except Exception as e:

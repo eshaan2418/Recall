@@ -78,13 +78,17 @@ def backed(tok: str, vals: list[float], cache: dict) -> bool:
 
 def scan_file(path: Path, vals: list[float], wl: set[str], cache: dict) -> list[str]:
     bad = []
-    skipping = False
-    for i, line in enumerate(path.read_text().splitlines(), 1):
-        if "nocheck" in line:
-            skipping = "/nocheck" not in line
+    skipping = fenced = False
+    for i, raw in enumerate(path.read_text().splitlines(), 1):
+        if "nocheck" in raw:
+            skipping = "/nocheck" not in raw
             continue
-        if skipping or line.strip().startswith(("```", "$ ", "make ", "python ")):
+        if raw.strip().startswith("```"):  # code blocks hold commands / illustrative examples, not claims
+            fenced = not fenced
             continue
+        if skipping or fenced or raw.strip().startswith(("$ ", "make ", "python ")):
+            continue
+        line = re.sub(r"<[^>]*>", " ", raw)  # HTML tags (image widths, alt text) are layout, not claims
         for m in NUM.finditer(line):
             tok, unit = m.group(1), (m.group(2) or "").strip()
             pre = line[max(0, m.start() - 25) : m.start()]

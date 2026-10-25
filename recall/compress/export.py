@@ -139,7 +139,9 @@ def tflite_image_fn(path: Path, threads: int = 4) -> Callable[..., np.ndarray]:
     import open_clip
     from PIL import Image
 
-    _, _, pp = open_clip.create_model_and_transforms("MobileCLIP2-S2", pretrained=None)
+    _, _, pp = open_clip.create_model_and_transforms(
+        "MobileCLIP2-S2", pretrained="dfndr2b"
+    )  # pretrained=None ⇒ wrong (OpenAI) normalisation
     run = TFLiteRunner(path, threads)
 
     def images(imgs: list, batch: int = 1) -> np.ndarray:
@@ -168,7 +170,9 @@ def calib_embedder(n: int = 64) -> list[tuple[np.ndarray, ...]]:
     from recall.bench.harness import subset
     from recall.data.loaders.epic import FrameReader
 
-    _, _, pp = open_clip.create_model_and_transforms("MobileCLIP2-S2", pretrained=None)
+    _, _, pp = open_clip.create_model_and_transforms(
+        "MobileCLIP2-S2", pretrained="dfndr2b"
+    )  # pretrained=None ⇒ wrong (OpenAI) normalisation
     rng = np.random.default_rng(0)
     vids = [v for v in subset("train") if (CACHE / "feats" / "MobileCLIP2-S2" / f"{v['video_id']}.npz").exists()][:4]
     out: list[tuple[np.ndarray, ...]] = []

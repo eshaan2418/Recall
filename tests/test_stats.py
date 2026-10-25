@@ -32,3 +32,16 @@ def test_calibration_features_do_not_reveal_absent_queries():
     a = feat_matrix([{"kind": "absent", **feats}])
     w = feat_matrix([{"kind": "where", **feats}])
     assert (a == w).all()
+
+
+def test_mobileclip2_preprocess_is_identity_normalised():
+    """The phone feeds RGB/255 with mean 0 / std 1; the offline LiteRT path must use the same transform."""
+    import pytest
+
+    open_clip = pytest.importorskip("open_clip")
+    try:
+        _, _, pp = open_clip.create_model_and_transforms("MobileCLIP2-S2", pretrained="dfndr2b")
+    except Exception:
+        pytest.skip("weights not cached")
+    norm = next(t for t in pp.transforms if type(t).__name__ == "Normalize")
+    assert tuple(norm.mean) == (0.0, 0.0, 0.0) and tuple(norm.std) == (1.0, 1.0, 1.0)

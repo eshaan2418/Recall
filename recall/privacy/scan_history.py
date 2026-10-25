@@ -27,6 +27,7 @@ ALLOW = re.compile(
     r"|results/[^/]+/figs/.*\.(png|pdf|svg)"  # plots
     r"|paper/figs/.*\.(png|pdf|svg)"
     r"|paper/main\.pdf"
+    r"|docs/img/.*\.(png|gif|svg)"  # README: app screenshots (emulator, no camera content), synthetic frames, diagrams
     r"|android/app/src/main/res/(mipmap|drawable)[^/]*/.*\.(png|webp|xml)"  # launcher icons
     r"|android/gradle/wrapper/gradle-wrapper\.jar"
     # synthetic e2e clip rendered by android/tools/make_test_video.py (no camera footage, no people). Exact path only;

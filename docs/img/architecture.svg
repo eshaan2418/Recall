@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52514e"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.15"/></filter>
+  </defs>
+  <rect width="1000" height="560" fill="#fcfcfb"/>
+  <!-- device boundary -->
+  <rect x="14" y="40" width="972" height="504" rx="18" fill="none" stroke="#8a8984" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text x="34" y="30" font-size="15" fill="#0b0b0b" font-weight="600">On the phone / glasses — no network permission, nothing leaves the device</text>
+
+  <!-- capture row -->
+  <g filter="url(#sh)">
+    <rect x="40" y="70" width="150" height="76" rx="12" fill="#ffffff" stroke="#8a8984"/>
+    <rect x="240" y="70" width="190" height="76" rx="12" fill="#eaf2fc" stroke="#2a78d6" stroke-width="1.6"/>
+    <rect x="480" y="70" width="230" height="76" rx="12" fill="#fdeee7" stroke="#eb6834" stroke-width="1.6"/>
+    <rect x="760" y="70" width="200" height="76" rx="12" fill="#ffffff" stroke="#8a8984"/>
+  </g>
+  <text x="115" y="100" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">Camera</text>
+  <text x="115" y="121" text-anchor="middle" font-size="12" fill="#52514e">2 fps, low-res frames</text>
+  <text x="115" y="137" text-anchor="middle" font-size="12" fill="#52514e">(+ IMU if available)</text>
+
+  <text x="335" y="96" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">① Learned trigger μ</text>
+  <text x="335" y="117" text-anchor="middle" font-size="12" fill="#52514e">tiny always-on CNN, &lt;1 MB</text>
+  <text x="335" y="133" text-anchor="middle" font-size="12" fill="#52514e">"hand–object moment now?"</text>
+
+  <text x="595" y="96" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">Heavy perception</text>
+  <text x="595" y="117" text-anchor="middle" font-size="12" fill="#52514e">hand–object student (MobileNetV3)</text>
+  <text x="595" y="133" text-anchor="middle" font-size="12" fill="#52514e">+ MobileCLIP2-S2 embeddings</text>
+
+  <text x="860" y="96" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">Event extractor</text>
+  <text x="860" y="117" text-anchor="middle" font-size="12" fill="#52514e">put · take · touch</text>
+  <text x="860" y="133" text-anchor="middle" font-size="12" fill="#52514e">hysteresis, merging</text>
+
+  <line x1="190" y1="108" x2="236" y2="108" stroke="#52514e" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="430" y1="108" x2="476" y2="108" stroke="#52514e" stroke-width="2" marker-end="url(#a)"/>
+  <text x="453" y="98" text-anchor="middle" font-size="11" fill="#52514e">fires</text>
+  <line x1="710" y1="108" x2="756" y2="108" stroke="#52514e" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M335,146 C335,180 300,186 300,196" fill="none" stroke="#8a8984" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="250" y="210" font-size="12" fill="#52514e">most frames: skipped — never seen by a big model</text>
+
+  <!-- privacy -->
+  <g filter="url(#sh)"><rect x="760" y="196" width="200" height="70" rx="12" fill="#ffffff" stroke="#8a8984"/></g>
+  <text x="860" y="224" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">Privacy redactor</text>
+  <text x="860" y="245" text-anchor="middle" font-size="12" fill="#52514e">faces / screens pixelated</text>
+  <text x="860" y="260" text-anchor="middle" font-size="12" fill="#52514e">before the thumbnail is saved</text>
+  <line x1="860" y1="146" x2="860" y2="192" stroke="#52514e" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- memory -->
+  <g filter="url(#sh)"><rect x="420" y="300" width="540" height="110" rx="14" fill="#e8f7f1" stroke="#1baf7a" stroke-width="1.6"/></g>
+  <text x="690" y="328" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">② Compact episodic memory m  (SQLCipher, Keystore key)</text>
+  <g font-size="12" fill="#0b0b0b">
+    <rect x="436" y="342" width="172" height="52" rx="8" fill="#ffffff" stroke="#1baf7a"/>
+    <text x="522" y="362" text-anchor="middle" font-weight="600">event</text>
+    <text x="522" y="380" text-anchor="middle" fill="#52514e">object · place · time · conf</text>
+    <rect x="618" y="342" width="98" height="52" rx="8" fill="#ffffff" stroke="#1baf7a"/>
+    <text x="667" y="362" text-anchor="middle" font-weight="600">objects</text>
+    <text x="667" y="380" text-anchor="middle" fill="#52514e">clusters</text>
+    <rect x="728" y="342" width="100" height="52" rx="8" fill="#ffffff" stroke="#1baf7a"/>
+    <text x="778" y="362" text-anchor="middle" font-weight="600">places</text>
+    <text x="778" y="380" text-anchor="middle" fill="#52514e">nameable</text>
+    <rect x="842" y="342" width="104" height="52" rx="8" fill="#ffffff" stroke="#1baf7a"/>
+    <text x="894" y="362" text-anchor="middle" font-weight="600">last_seen</text>
+    <text x="894" y="380" text-anchor="middle" fill="#52514e">O(1) "where"</text>
+  </g>
+  <line x1="860" y1="266" x2="860" y2="296" stroke="#52514e" stroke-width="2" marker-end="url(#a)"/>
+  <text x="955" y="428" text-anchor="end" font-size="11" fill="#52514e">1 thumbnail + 1 embedding per event · grows with events, not hours · retention &amp; forget</text>
+
+  <!-- query -->
+  <g filter="url(#sh)">
+    <rect x="40" y="300" width="160" height="70" rx="12" fill="#ffffff" stroke="#8a8984"/>
+    <rect x="34" y="440" width="376" height="86" rx="12" fill="#efedfb" stroke="#6250d6" stroke-width="1.6"/>
+  </g>
+  <text x="120" y="328" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">You ask</text>
+  <text x="120" y="350" text-anchor="middle" font-size="12" fill="#52514e">"Where are my keys?"</text>
+  <text x="120" y="364" text-anchor="middle" font-size="12" fill="#52514e">text or on-device voice</text>
+  <path d="M200,335 L416,355" fill="none" stroke="#52514e" stroke-width="2" marker-end="url(#a)"/>
+  <text x="300" y="334" text-anchor="middle" font-size="11" fill="#52514e">parse → retrieve</text>
+  <path d="M440,410 C440,460 430,483 414,483" fill="none" stroke="#52514e" stroke-width="2" marker-end="url(#a)"/>
+  <text x="222" y="466" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">③ Calibrated, grounded answer</text>
+  <text x="222" y="488" text-anchor="middle" font-size="12" fill="#0b0b0b">"Probably the table — you put the keys there at 10:13 pm."</text>
+  <text x="222" y="506" text-anchor="middle" font-size="12" fill="#52514e">confidence · evidence thumbnail · or "I don't know"</text>
+  <text x="222" y="520" text-anchor="middle" font-size="11" fill="#52514e">never names a place that isn't in memory</text>
+</svg>

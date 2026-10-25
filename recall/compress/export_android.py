@@ -104,8 +104,14 @@ def main() -> None:
         sp["state_probe"] = {"coef": st_ev.clf.coef_[0].tolist(), "intercept": float(st_ev.clf.intercept_[0])}
     p_gate = float(thr)  # score_video returns sigmoid probabilities; the app compares sigmoid(logit) to this
     conf = {
-        k: {"mode": v.mode, "tau": v.tau, "recency_s": v.recency_s, "score": v.score, "fallback_take": v.fallback_take,
-            "loc_mode": v.loc_mode}
+        k: {
+            "mode": v.mode,
+            "tau": v.tau,
+            "recency_s": v.recency_s,
+            "score": v.score,
+            "fallback_take": v.fallback_take,
+            "loc_mode": v.loc_mode,
+        }
         for k, v in cfgs.items()
         if k in ("where", "temporal", "state")
     }
