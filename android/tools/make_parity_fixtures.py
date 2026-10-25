@@ -132,11 +132,12 @@ def fixture_answers() -> None:
     st = StateHead(LogisticRegression(max_iter=2000).fit(Xs, ys), {3: 0.8}, 0.5)
     queries = []
     for cfg in [AnswerConfig(), AnswerConfig(mode="best", tau=0.1), AnswerConfig(mode="recency", recency_s=300.0),
-                AnswerConfig(mode="latest", score="ratio", tau=0.3), AnswerConfig(tau=0.9, fallback_take=False)]:
+                AnswerConfig(mode="latest", score="ratio", tau=0.3), AnswerConfig(tau=0.9, fallback_take=False),
+                AnswerConfig(mode="recency", recency_s=300.0, tau=0.02, loc_mode="marginal")]:
         for cls in range(12):
             for tq in (800.0, 2000.0, 3100.0):
                 cd = {"mode": cfg.mode, "tau": cfg.tau, "recency_s": cfg.recency_s, "score": cfg.score,
-                      "fallback_take": cfg.fallback_take}
+                      "fallback_take": cfg.fallback_take, "loc_mode": cfg.loc_mode}
                 for kind, verb in [("where", None), ("temporal", "take"), ("temporal", "put"), ("temporal", "open"),
                                    ("state", None)]:
                     if kind == "where":

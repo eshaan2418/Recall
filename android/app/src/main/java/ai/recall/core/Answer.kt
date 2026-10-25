@@ -57,6 +57,7 @@ data class AnswerConfig(
     val recencyS: Double = 600.0,
     val score: String = "prob", // prob | ratio
     val fallbackTake: Boolean = true,
+    val locMode: String = "event", // event | marginal (Σ over candidates of score·recency·p(place)); mirrors answer.py
 )
 
 data class Answer(
@@ -140,7 +141,15 @@ object Answerer {
         }
         if (j == null) return Answer("where", true)
         val f = features(v, j, cls, s, cand, tq, cfg.tau) + ("fallback" to if (v.events[j].kind != "put") 1.0 else 0.0)
-        val loc = v.locLogp[j].indices.maxByOrNull { v.locLogp[j][it] }
+        var loc = v.locLogp[j].indices.maxByOrNull { v.locLogp[j][it] }
+        if (cfg.locMode == "marginal" && cand.size > 1) {
+            val acc = DoubleArray(v.locLogp[j].size)
+            for (c in cand) {
+                val w = s[c] * exp(-(tq - v.events[c].t) / cfg.recencyS)
+                for (k in acc.indices) acc[k] += w * exp(v.locLogp[c][k])
+            }
+            loc = acc.indices.maxByOrNull { acc[it] }
+        }
         return Answer("where", false, v.events[j], v.events[j].t, loc, feats = f)
     }
 

@@ -78,7 +78,7 @@ class Bundle(
             val cfgs = listOf("where", "temporal", "state").associateWith { k ->
                 val o = cj.getJSONObject("configs").getJSONObject(k)
                 AnswerConfig(o.getString("mode"), o.getDouble("tau"), o.optDouble("recency_s", 600.0), o.optString("score", "prob"),
-                    o.optBoolean("fallback_take", true))
+                    o.optBoolean("fallback_take", true), o.optString("loc_mode", "event"))
             }
             val prior = cj.optJSONObject("state_prior")?.let { o -> o.keys().asSequence().associate { it.toInt() to o.getDouble(it) } } ?: emptyMap()
             val probe = cj.optJSONObject("state_probe")?.let { o ->

@@ -31,4 +31,4 @@ fun headFrom(o: JSONObject): BlendHead {
 }
 
 fun cfgFrom(o: JSONObject) = AnswerConfig(o.getString("mode"), o.getDouble("tau"), o.getDouble("recency_s"), o.getString("score"),
-    o.getBoolean("fallback_take"))
+    o.getBoolean("fallback_take"), o.optString("loc_mode", "event"))

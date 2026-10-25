@@ -66,7 +66,11 @@ def main() -> None:
     fam = {"where": "where", "absent": "where", "temporal": "temporal", "state": "state"}
     cfgs_b2 = {
         k: AnswerConfig(
-            mode=tl[v]["mode"], recency_s=tl[v]["recency_s"], tau=tl[v]["tau"], score=tl[v].get("score", "prob")
+            mode=tl[v]["mode"],
+            recency_s=tl[v]["recency_s"],
+            tau=tl[v]["tau"],
+            score=tl[v].get("score", "prob"),
+            loc_mode=tl[v].get("loc_mode", "event"),
         )
         for k, v in fam.items()
     }

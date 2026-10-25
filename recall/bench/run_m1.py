@@ -39,6 +39,7 @@ B2_INTERVALS_S = [1, 2, 5, 10, 30]
 TAUS = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.5]
 MODES = [("latest", 0.0), ("recency", 120.0), ("recency", 600.0), ("best", 0.0)]
 SCORES = ["prob", "ratio"]
+LOC_MODES = ["event", "marginal"]  # added after the first test run (DECISIONS 2026-10-25); selected on val
 
 
 def load_split(split: str) -> dict:
@@ -104,8 +105,8 @@ def tune_system(sys: System, val: dict, heads: Heads, qs_val: list[Query]) -> tu
     fams = {"where": ("where", "absent"), "temporal": ("temporal",), "state": ("state",)}
     # one pass per config over val, then pick per family
     grid = [
-        replace(sys.cfg, mode=m, recency_s=r or sys.cfg.recency_s, tau=t, score=sc)
-        for (m, r), t, sc in itertools.product(MODES, TAUS, SCORES)
+        replace(sys.cfg, mode=m, recency_s=r or sys.cfg.recency_s, tau=t, score=sc, loc_mode=lm)
+        for (m, r), t, sc, lm in itertools.product(MODES, TAUS, SCORES, LOC_MODES)
     ]
     scores: dict[str, list[float]] = {f: [] for f in fams}
     for cfg in grid:
@@ -126,6 +127,7 @@ def tune_system(sys: System, val: dict, heads: Heads, qs_val: list[Query]) -> tu
             "recency_s": grid[j].recency_s,
             "tau": grid[j].tau,
             "score": grid[j].score,
+            "loc_mode": grid[j].loc_mode,
             "val_score": scores[fam][j],
         }
     return replace(sys, cfg_by_kind=best_cfg), log

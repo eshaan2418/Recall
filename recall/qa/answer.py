@@ -104,6 +104,7 @@ class AnswerConfig:
     use_kinds_where: tuple[str, ...] = ("put",)
     fallback_take: bool = True  # if no put candidate, fall back to last take/touch ("you had it in hand at …")
     kinds_override: tuple[str, ...] | None = None  # B2: every stored item is a "frame"
+    loc_mode: str = "event"  # event: place of the chosen event · marginal: Σ_candidates w·p(place), w ∝ score·recency
 
 
 @dataclass
@@ -176,7 +177,11 @@ def answer_where(view: MemoryView, cls: int, t_q: float, cfg: AnswerConfig) -> A
         return Answer("where", True, feats={k: 0.0 for k in FEATURES})
     f = _features(view, j, cls, scores, cand, t_q, cfg.tau)
     f["fallback"] = float(view.kind[j] != "put")
-    return Answer("where", False, j, float(view.t[j]), int(np.argmax(view.loc_logp[j])), feats=f)
+    loc = int(np.argmax(view.loc_logp[j]))
+    if cfg.loc_mode == "marginal" and len(cand) > 1:
+        w = scores[cand] * np.exp(-(t_q - view.t[cand]) / cfg.recency_s)
+        loc = int(np.argmax((w[:, None] * np.exp(view.loc_logp[cand])).sum(0)))
+    return Answer("where", False, j, float(view.t[j]), loc, feats=f)
 
 
 def answer_temporal(view: MemoryView, cls: int, verb: str | None, t_q: float, cfg: AnswerConfig) -> Answer:

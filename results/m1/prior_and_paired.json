@@ -1,0 +1,112 @@
+{
+ "evidence_stage": "offline-eval",
+ "git_commit": "3588b1ce9c2df51966a265eb5bda354060c6b647",
+ "git_dirty": true,
+ "hardware": {
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.12.14",
+  "cpu": "Apple M5 Pro"
+ },
+ "versions": {
+  "numpy": "2.5.4",
+  "torch": "2.14.1",
+  "transformers": "5.20.1",
+  "open_clip": "3.3.0",
+  "sklearn": "1.9.1"
+ },
+ "seed": 0,
+ "config": {
+  "prior_from": "train+val"
+ },
+ "timestamp": "2026-10-25T20:31:08+00:00",
+ "B0_prior": {
+  "location": "rack:drying",
+  "train_val_share": 0.18041237113402062,
+  "test_where_loc_acc": {
+   "mean": 0.3004694835680751,
+   "lo": 0.13414463823409184,
+   "hi": 0.4324372244585011,
+   "n": 213
+  },
+  "absent_hallucination": 1.0
+ },
+ "paired_on_B1_subsample": {
+  "where": {
+   "Recall-all-frames": {
+    "mean": 0.15833333333333333,
+    "lo": 0.056331446623667236,
+    "hi": 0.23809523809523808
+   },
+   "B2-frame-CLIP-1s": {
+    "mean": 0.20833333333333334,
+    "lo": 0.14285714285714285,
+    "hi": 0.2735062893081761
+   },
+   "B1-VLM-K16": {
+    "mean": 0.3333333333333333,
+    "lo": 0.18445207008146414,
+    "hi": 0.47096774193548385
+   },
+   "B0-prior": {
+    "mean": 0.325,
+    "lo": 0.1470520777118187,
+    "hi": 0.4737034191317709
+   },
+   "n": 120,
+   "Recall_minus_B1-VLM-K16": {
+    "delta": -0.175,
+    "lo": -0.292311320754717,
+    "hi": -0.0545331695331696
+   },
+   "Recall_minus_B2-frame-CLIP-1s": {
+    "delta": -0.05,
+    "lo": -0.17478395391016752,
+    "hi": 0.04638110792912105
+   },
+   "Recall_minus_B0-prior": {
+    "delta": -0.16666666666666666,
+    "lo": -0.2712002579218865,
+    "hi": -0.05207754629629633
+   }
+  },
+  "absent": {
+   "Recall-all-frames": {
+    "mean": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   },
+   "B2-frame-CLIP-1s": {
+    "mean": 0.95,
+    "lo": 0.8809523809523809,
+    "hi": 1.0
+   },
+   "B1-VLM-K16": {
+    "mean": 0.25,
+    "lo": 0.12195121951219512,
+    "hi": 0.400119047619047
+   },
+   "B0-prior": {
+    "mean": 0.0,
+    "lo": 0.0,
+    "hi": 0.0
+   },
+   "n": 40,
+   "Recall_minus_B1-VLM-K16": {
+    "delta": 0.75,
+    "lo": 0.5998809523809524,
+    "hi": 0.8780487804878049
+   },
+   "Recall_minus_B2-frame-CLIP-1s": {
+    "delta": 0.05,
+    "lo": 0.0,
+    "hi": 0.11904761904761904
+   },
+   "Recall_minus_B0-prior": {
+    "delta": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   }
+  }
+ }
+}
