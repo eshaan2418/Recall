@@ -75,6 +75,8 @@ android:
 	cd android && ./gradlew assembleDebug assembleRelease
 android-test:
 	cd android && ./gradlew testDebugUnitTest
+android-connected:
+	cd android && ./gradlew connectedDebugAndroidTest
 demo:
 	./scripts/demo_e2e.sh
 

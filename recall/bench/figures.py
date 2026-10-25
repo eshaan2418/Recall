@@ -59,7 +59,7 @@ def fig_m1() -> None:
     if not r:
         return
     names = [n for n in r["systems"] if not n.startswith("B3") or n == "B3-manual-q0.5"]
-    b1 = _load("m1/b1_vlm.json")
+    b1 = _load("m1/b1_vlm_K16.json")
     fig, ax = plt.subplots(figsize=(6.4, 3.0))
     y = np.arange(len(names) + (1 if b1 else 0))
     vals = [_m(r["systems"][n]["metrics"], "where_acc") for n in names]

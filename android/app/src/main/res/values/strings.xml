@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Recall</string>
+    <string name="recording_channel">Recall memory capture</string>
+    <string name="recording_title">Recall is remembering</string>
+    <string name="recording_text">Camera on. Tap Pause to stop recording.</string>
+    <string name="pause">Pause</string>
+</resources>

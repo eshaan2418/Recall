@@ -23,3 +23,12 @@ def test_paired_diff():
     b = np.zeros(50)
     m, lo, hi = paired_bootstrap_diff(a, b)
     assert m == 1.0 and lo == 1.0
+
+
+def test_calibration_features_do_not_reveal_absent_queries():
+    from recall.qa.calibrate import feat_matrix
+
+    feats = {"feats": {"score": 0.3}}
+    a = feat_matrix([{"kind": "absent", **feats}])
+    w = feat_matrix([{"kind": "where", **feats}])
+    assert (a == w).all()

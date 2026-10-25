@@ -29,7 +29,9 @@ def feat_matrix(recs: list[dict]) -> np.ndarray:
         f = r.get("feats") or {}
         v = [float(f.get(k, 0.0)) for k in FEATURES]
         v += [float(f.get("fallback", 0.0)), float(f.get("p_on", 0.5)), abs(float(f.get("p_on", 0.5)) - 0.5)]
-        v += [float(r["kind"] == k) for k in KINDS]
+        # an "absent" query is indistinguishable from "where" at answer time — never let its label leak in
+        kind = "where" if r["kind"] == "absent" else r["kind"]
+        v += [float(kind == k) for k in KINDS]
         rows.append(v)
     return np.array(rows, np.float32).reshape(len(recs), len(FEATURES) + 3 + len(KINDS))
 

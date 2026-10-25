@@ -125,6 +125,7 @@ def main() -> None:
         queries_for("test"), {"where": a.n_where, "absent": a.n_other, "temporal": a.n_other, "state": a.n_other}
     )
     out_path = RESULTS / "m1" / "records" / f"B1-VLM-K{a.k}.jsonl"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     done = {}
     if out_path.exists():
         for line in out_path.read_text().splitlines():
