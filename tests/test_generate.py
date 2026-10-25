@@ -64,5 +64,5 @@ def test_verify_allows_substring_location():
         "It's on the kitchen counter, 5:00 pm, 60%.",
         "kitchen counter 5:00 pm 60%",
         "kitchen counter",
-        LOCS + ["counter"],
+        [*LOCS, "counter"],
     )

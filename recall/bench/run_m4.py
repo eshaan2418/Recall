@@ -64,7 +64,7 @@ def main() -> None:
     tl = m1["systems"]["B2-frame-CLIP-2s"]["val_tuning"]
     fam = {"where": "where", "absent": "where", "temporal": "temporal", "state": "state"}
     cfgs_b2 = {
-        k: AnswerConfig(mode=tl[v]["mode"], recency_s=tl[v]["recency_s"], tau=tl[v]["tau"]) for k, v in fam.items()
+        k: AnswerConfig(mode=tl[v]["mode"], recency_s=tl[v]["recency_s"], tau=tl[v]["tau"], score=tl[v].get("score", "prob")) for k, v in fam.items()
     }
 
     import torch

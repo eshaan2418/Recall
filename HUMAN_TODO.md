@@ -14,3 +14,4 @@ Each item says what it unlocks. Nothing here blocks the rest of the build; all a
    - Drop the files in `data/personal/raw/` (git-ignored). Then run `make annotate-personal` to label put-down events and `make eval-personal`.
 4. **Cloud VLM baseline (optional)**: put `GEMINI_API_KEY=...` in `.env` and run `make baseline-cloud ALLOW_CLOUD=1`. It only ever sends public EPIC frames, or personal data if you also pass `--allow-cloud` yourself.
 5. **User study (M10)**: get ethics/IRB approval or informal written consent (see `study/README.md`), run the sessions with `study/run_session.md`, put the CSVs in `study/data/`, and run `make study-analysis`.
+6. **Commit signing**: commits are signed through your 1Password SSH agent. When several sessions commit at once, signing requests queue until you approve them in 1Password; commits in this repo may sit pending until then. Nothing was changed in your git config.

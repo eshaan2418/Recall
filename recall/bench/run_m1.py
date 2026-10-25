@@ -37,7 +37,8 @@ from recall.trigger.policies import oracle, uniform
 MODEL = "MobileCLIP2-S2"
 B2_INTERVALS_S = [1, 2, 5, 10, 30]
 TAUS = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.5]
-MODES = [("latest", 0.0), ("recency", 120.0), ("recency", 600.0)]
+MODES = [("latest", 0.0), ("recency", 120.0), ("recency", 600.0), ("best", 0.0)]
+SCORES = ["prob", "ratio"]
 
 
 def load_split(split: str) -> dict:
@@ -103,8 +104,8 @@ def tune_system(sys: System, val: dict, heads: Heads, qs_val: list[Query]) -> tu
     fams = {"where": ("where", "absent"), "temporal": ("temporal",), "state": ("state",)}
     # one pass per config over val, then pick per family
     grid = [
-        replace(sys.cfg, mode=m, recency_s=r or sys.cfg.recency_s, tau=t)
-        for (m, r), t in itertools.product(MODES, TAUS)
+        replace(sys.cfg, mode=m, recency_s=r or sys.cfg.recency_s, tau=t, score=sc)
+        for (m, r), t, sc in itertools.product(MODES, TAUS, SCORES)
     ]
     scores: dict[str, list[float]] = {f: [] for f in fams}
     for cfg in grid:
@@ -124,6 +125,7 @@ def tune_system(sys: System, val: dict, heads: Heads, qs_val: list[Query]) -> tu
             "mode": grid[j].mode,
             "recency_s": grid[j].recency_s,
             "tau": grid[j].tau,
+            "score": grid[j].score,
             "val_score": scores[fam][j],
         }
     return replace(sys, cfg_by_kind=best_cfg), log

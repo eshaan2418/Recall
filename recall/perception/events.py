@@ -24,8 +24,9 @@ from recall.perception.extract import REGION_KINDS
 @dataclass
 class ExtractorConfig:
     max_gap: int = 6  # processed frames further apart than this (×0.5 s) break a holding bout
-    switch_sim: float = 0.55  # cosine sim below which the held object is considered a different object
+    switch_sim: float = 0.40  # cosine sim below which the held object is considered a different object
     min_obs: int = 1
+    release_frames: int = 2  # consecutive processed no-contact frames before a release is declared (hysteresis)
 
 
 class RegionIndex:
@@ -126,7 +127,7 @@ def extract_events(
         for i in (int(x) for x in idx):
             gap = i - last_i
             if held is not None and gap > cfg.max_gap:
-                close_held(None)  # release not observed
+                close_held(held["rel"] if held["miss"] else None)  # release not (fully) observed
             if touch is not None and gap > cfg.max_gap:
                 close_touch()
             present, score, state = hands[i, side, 0], hands[i, side, 1], int(hands[i, side, 2])
@@ -141,9 +142,12 @@ def extract_events(
                 if held is not None:
                     sim = float(_unit(np.mean(held["embs"], 0)) @ _unit(e))
                     if sim < cfg.switch_sim:
-                        close_held(i if gap == 1 else None)
+                        close_held(held["rel"] if held["miss"] else (i if gap == 1 else None))
+                    else:
+                        held["miss"], held["rel"] = 0, None  # brief flicker: same object, keep holding
                 if held is None:
-                    held = {"embs": [], "ctx": [], "scores": [], "first": i, "last": i, "box": box}
+                    held = {"embs": [], "ctx": [], "scores": [], "first": i, "last": i, "box": box, "miss": 0,
+                            "rel": None}
                     ctx = reg.emb[jc].astype(np.float32) if jc is not None else femb[i].astype(np.float32)
                     out.append(
                         Event(
@@ -165,7 +169,11 @@ def extract_events(
                 held["scores"].append(float(score))
                 held["last"], held["box"] = i, box
             elif held is not None:
-                close_held(i if gap == 1 else None)
+                held["miss"] += 1
+                if held["miss"] == 1:
+                    held["rel"] = i if gap == 1 else None
+                if held["miss"] >= cfg.release_frames:
+                    close_held(held["rel"])
             if stationary:
                 e = reg.emb[jo].astype(np.float32)
                 if touch is None:
@@ -185,7 +193,7 @@ def extract_events(
                 close_touch()
             last_i = i
         if held is not None:
-            close_held(None)
+            close_held(held["rel"] if held["miss"] else None)
         if touch is not None:
             close_touch()
     out = [ev for ev in out if ev.n_obs >= cfg.min_obs or ev.kind == "take"]

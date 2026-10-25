@@ -97,7 +97,8 @@ class MemoryView:
 
 @dataclass
 class AnswerConfig:
-    mode: str = "latest"  # latest | recency
+    mode: str = "latest"  # latest | recency | best
+    score: str = "prob"  # prob: p(X|event) · ratio: p(X|event) / max_c p(c|event)
     tau: float = 0.05  # min p(object | event) to be a candidate
     recency_s: float = 600.0  # for mode=recency: score * exp(-age/recency_s)
     use_kinds_where: tuple[str, ...] = ("put",)
@@ -123,8 +124,19 @@ def _pick(scores: np.ndarray, t: np.ndarray, t_q: float, cfg: AnswerConfig) -> t
         return None, cand
     if cfg.mode == "latest":
         return int(cand[np.argmax(t[cand])]), cand
+    if cfg.mode == "best":
+        return int(cand[np.lexsort((t[cand], scores[cand]))[-1]]), cand
     w = scores[cand] * np.exp(-(t_q - t[cand]) / cfg.recency_s)
     return int(cand[np.argmax(w)]), cand
+
+
+def _obj_scores(view: MemoryView, cls: int, mask: np.ndarray, cfg: AnswerConfig) -> np.ndarray:
+    if len(view.t) == 0:
+        return np.zeros(0)
+    lp = view.obj_logp[:, cls]
+    if cfg.score == "ratio":
+        lp = lp - view.obj_logp.max(axis=1)
+    return np.where(mask, np.exp(lp), 0.0)
 
 
 def _features(view: MemoryView, j: int, cls: int, scores: np.ndarray, cand: np.ndarray, t_q: float, tau: float) -> dict:
@@ -154,11 +166,11 @@ def _features(view: MemoryView, j: int, cls: int, scores: np.ndarray, cand: np.n
 def answer_where(view: MemoryView, cls: int, t_q: float, cfg: AnswerConfig) -> Answer:
     before = view.t < t_q
     kinds = np.isin(view.kind, cfg.kinds_override or cfg.use_kinds_where) & before
-    scores = np.where(kinds, np.exp(view.obj_logp[:, cls]) if len(view.t) else 0.0, 0.0)
+    scores = _obj_scores(view, cls, kinds, cfg)
     j, cand = _pick(scores, view.t, t_q, cfg)
     if j is None and cfg.fallback_take and cfg.kinds_override is None:
         kinds = np.isin(view.kind, ("take", "touch")) & before
-        scores = np.where(kinds, np.exp(view.obj_logp[:, cls]) if len(view.t) else 0.0, 0.0)
+        scores = _obj_scores(view, cls, kinds, cfg)
         j, cand = _pick(scores, view.t, t_q, cfg)
     if j is None:
         return Answer("where", True, feats={k: 0.0 for k in FEATURES})
@@ -170,7 +182,7 @@ def answer_where(view: MemoryView, cls: int, t_q: float, cfg: AnswerConfig) -> A
 def answer_temporal(view: MemoryView, cls: int, verb: str | None, t_q: float, cfg: AnswerConfig) -> Answer:
     kinds = cfg.kinds_override or KIND_FOR_VERB.get(verb or "take", ("take",))
     m = np.isin(view.kind, kinds) & (view.t < t_q)
-    scores = np.where(m, np.exp(view.obj_logp[:, cls]) if len(view.t) else 0.0, 0.0)
+    scores = _obj_scores(view, cls, m, cfg)
     j, cand = _pick(scores, view.t, t_q, cfg)
     if j is None:
         return Answer("temporal", True, feats={k: 0.0 for k in FEATURES})
@@ -181,7 +193,7 @@ def answer_temporal(view: MemoryView, cls: int, verb: str | None, t_q: float, cf
 def answer_state(view: MemoryView, cls: int, t_q: float, cfg: AnswerConfig, state_head=None) -> Answer:
     """Last observed interaction with an appliance + predicted on/off after it."""
     m = np.isin(view.kind, cfg.kinds_override or ("touch", "take")) & (view.t < t_q)
-    scores = np.where(m, np.exp(view.obj_logp[:, cls]) if len(view.t) else 0.0, 0.0)
+    scores = _obj_scores(view, cls, m, cfg)
     j, cand = _pick(scores, view.t, t_q, cfg)
     if j is None:
         return Answer("state", True, feats={k: 0.0 for k in FEATURES})

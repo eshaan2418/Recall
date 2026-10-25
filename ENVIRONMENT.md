@@ -19,9 +19,9 @@
 | Dataset | Status |
 |---|---|
 | Ego4D (EM: VQ2D, NLQ) | **No access** — no credentials in `.env` (no `.env` exists). Blocked; see BLOCKERS.md |
-| EPIC-KITCHENS-100 | **Available** — publicly downloadable (CC BY-NC 4.0). Subset of 59 videos / 14.4 h downloaded locally (`configs/epic_subset.json`) |
+| EPIC-KITCHENS-100 | **Available** — publicly downloadable (CC BY-NC 4.0). Subset of 58 narrated videos / 14.2 h downloaded locally (`configs/epic_subset.json`) |
 | EPIC-100 hand-object bboxes (Shan et al. 2020 detector output) | Available, downloaded per selected video |
-| EPIC-100 IMU (accl/gyro) | Available for extension videos (28/59 of the subset) |
+| EPIC-100 IMU (accl/gyro) | Available for extension videos (28 of 58 subset videos) |
 | Personal recordings (`data/personal/raw/`) | **None present** |
 | Cloud VLM key | **None** |
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 
@@ -159,6 +159,8 @@ def run(
             kind = "where" if q.kind == "absent" else q.kind
             pq = ParsedQuery(kind, q.obj_key, _verb_name(q.verb_class))
             cfg = sys.cfg_by_kind.get(kind, sys.cfg)
+            if sys.memory == "frames" and cfg.kinds_override is None:
+                cfg = replace(cfg, kinds_override=("frame",))
             a = answer(view, pq, q.obj_class, q.t_query, cfg, sys.state_head)
             rec = score(q, a, heads.loc_ids)
             rec["system"] = sys.name

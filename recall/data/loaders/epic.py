@@ -99,11 +99,13 @@ def select_subset(ann: Path = EPIC_ANN) -> list[VideoInfo]:
     info = pd.read_csv(ann / "EPIC_100_video_info.csv").set_index("video_id")
     puts = d[d.verb.str.startswith("put")]
     located = puts[puts.all_noun_classes.apply(len) >= 2].groupby("video_id").size()
+    narrated = set(d.video_id)
     out: list[VideoInfo] = []
     for split, parts in SPLIT_PARTICIPANTS.items():
         for p in parts:
             vids = info[info.index.str.startswith(p + "_")]
             vids = vids[(vids.duration >= MIN_DUR_S) & (vids.duration <= MAX_DUR_S)]
+            vids = vids[vids.index.isin(narrated)]  # EPIC-100 test-split videos have no public narrations
             vids = vids.assign(lp=located.reindex(vids.index).fillna(0))
             vids = vids.sort_values(["lp", "duration"], ascending=False)
             budget = HOURS_PER_PARTICIPANT[split] * 3600

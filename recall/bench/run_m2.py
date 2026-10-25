@@ -61,7 +61,7 @@ def tuned_cfgs() -> dict[str, AnswerConfig]:
     m1 = json.loads((RESULTS / "m1" / "systems_test.json").read_text())
     tl = m1["systems"]["Recall-all-frames"]["val_tuning"]
     fam = {"where": "where", "absent": "where", "temporal": "temporal", "state": "state"}
-    return {k: AnswerConfig(mode=tl[v]["mode"], recency_s=tl[v]["recency_s"], tau=tl[v]["tau"]) for k, v in fam.items()}
+    return {k: AnswerConfig(mode=tl[v]["mode"], recency_s=tl[v]["recency_s"], tau=tl[v]["tau"], score=tl[v].get("score", "prob")) for k, v in fam.items()}
 
 
 def main() -> None:
