@@ -129,6 +129,13 @@ def batch(data: list[GateData], idx: list[tuple[int, int]]) -> tuple[torch.Tenso
             torch.from_numpy(np.array(Y, np.float32)))  # fmt: skip
 
 
+def _seq_logits(m: TinyGate, x: torch.Tensor, imu: torch.Tensor | None) -> torch.Tensor:
+    """x: [B,L,9,36,64] → causal logits for the last L-CTX+1 steps (identical math to score_video)."""
+    B, L = x.shape[:2]
+    c = m.frame_codes(x.flatten(0, 1), None if imu is None else imu.flatten(0, 1)).view(B, L, -1).transpose(1, 2)
+    return m.head(m.temporal(c).transpose(1, 2)).squeeze(-1)  # [B, L-CTX+1]
+
+
 def train_gate(
     train: list[GateData],
     val: list[GateData],
@@ -136,42 +143,59 @@ def train_gate(
     epochs: int = 6,
     use_imu: bool = True,
     width: int = 16,
-    device: str = "cpu",
-    bs: int = 256,
+    device: str | None = None,
+    win: int = 64,
+    bs: int = 8,
     log=print,
 ) -> tuple[TinyGate, dict]:
+    """Sequence training: each sample is a contiguous window of ``win`` labelled steps (+CTX-1 left context), so the
+    CNN runs once per frame instead of CTX times. One epoch ≈ every training step seen once in expectation."""
+    if device is None:
+        device = "mps" if torch.backends.mps.is_available() else "cpu"
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
     m = TinyGate(width, use_imu=use_imu).to(device)
     pos = float(np.mean(np.concatenate([d.y for d in train])))
     lossf = nn.BCEWithLogitsLoss(pos_weight=torch.tensor((1 - pos) / max(pos, 1e-3), device=device))
     opt = torch.optim.AdamW(m.parameters(), lr=3e-3, weight_decay=1e-4)
-    idx = windows_index(train)
-    steps = epochs * (len(idx) // bs)
-    sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=3e-3, total_steps=max(steps, 1))
+    n_steps = sum(len(d.y) for d in train)
+    per_epoch = max(1, n_steps // (win * bs))
+    sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=3e-3, total_steps=epochs * per_epoch)
+    lens = np.array([len(d.y) for d in train], float)
     best, best_state, hist = -1.0, None, []
     for ep in range(epochs):
         m.train()
-        order = rng.permutation(len(idx))
         tot = 0.0
-        for s in range(len(idx) // bs):
-            b = [idx[j] for j in order[s * bs : (s + 1) * bs]]
-            x, im, y = (t.to(device) for t in batch(train, b))
-            loss = lossf(m(x, im if use_imu else None), y)
+        for _ in range(per_epoch):
+            X, I, Y = [], [], []
+            for k in rng.choice(len(train), size=bs, p=lens / lens.sum()):
+                d = train[k]
+                end = int(rng.integers(1, len(d.y) + 1))
+                js = np.clip(np.arange(end - win - CTX + 1, end), 0, None)  # left-pad by repeating frame 0
+                X.append(d.x[js])
+                I.append(d.imu[js])
+                Y.append(d.y[js[CTX - 1 :]])
+            x = torch.from_numpy(np.stack(X).astype(np.float32)).to(device)
+            im = torch.from_numpy(np.stack(I)).to(device) if use_imu else None
+            y = torch.from_numpy(np.stack(Y).astype(np.float32)).to(device)
+            loss = lossf(_seq_logits(m, x, im), y)
             opt.zero_grad()
             loss.backward()
             opt.step()
             sched.step()
             tot += float(loss.detach())
-        ap = average_precision(m, val, use_imu, device)
-        hist.append({"epoch": ep, "train_loss": tot / max(1, len(idx) // bs), "val_ap": ap})
-        log(f"  seed {seed} epoch {ep} loss {hist[-1]['train_loss']:.4f} val AP {ap:.4f}")
+        m_cpu = m.to("cpu")
+        ap = average_precision(m_cpu, val, use_imu, "cpu")
+        m = m_cpu.to(device)
+        hist.append({"epoch": ep, "train_loss": tot / per_epoch, "val_ap": ap})
+        log(f"  seed {seed} imu {use_imu} epoch {ep} loss {hist[-1]['train_loss']:.4f} val AP {ap:.4f}")
         if ap > best:
             best = ap
-            best_state = {k: v.detach().clone() for k, v in m.state_dict().items()}
+            best_state = {k: v.detach().cpu().clone() for k, v in m.state_dict().items()}
     assert best_state is not None
+    m = m.to("cpu")
     m.load_state_dict(best_state)
-    return m.eval(), {"val_ap": best, "history": hist, "pos_rate": pos, "params": n_params(m)}
+    return m.eval(), {"val_ap": best, "history": hist, "pos_rate": pos, "params": n_params(m), "device": device}
 
 
 @torch.no_grad()

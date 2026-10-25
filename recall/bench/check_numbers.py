@@ -71,7 +71,7 @@ def backed(tok: str, vals: list[float], cache: dict) -> bool:
     x = float(s)
     dec = len(s.split(".")[1]) if "." in s else 0
     tol = 0.5 * 10 ** (-dec) + 1e-9
-    ok = any(abs(t - x) <= tol for v in vals for t in (v, v * 100, v / 1e3, v / 1e6, v / 1e9))
+    ok = any(abs(t - x) <= tol for v in vals for t in (v, v * 100, 1 - v, v / 1e3, v / 1e6, v / 1e9))
     cache[tok] = ok
     return ok
 

@@ -47,7 +47,7 @@ def test_score_video_matches_forward_and_is_causal():
 
 
 def test_gate_learns_synthetic():
-    m, log = train_gate([_data(400, 0)], [_data(200, 1)], seed=0, epochs=3, bs=64, log=lambda *_: None)
+    m, log = train_gate([_data(400, 0)], [_data(200, 1)], seed=0, epochs=3, bs=8, win=32, device="cpu", log=lambda *_: None)
     assert log["val_ap"] > 0.6
 
 
