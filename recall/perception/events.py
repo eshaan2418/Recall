@@ -146,8 +146,16 @@ def extract_events(
                     else:
                         held["miss"], held["rel"] = 0, None  # brief flicker: same object, keep holding
                 if held is None:
-                    held = {"embs": [], "ctx": [], "scores": [], "first": i, "last": i, "box": box, "miss": 0,
-                            "rel": None}
+                    held = {
+                        "embs": [],
+                        "ctx": [],
+                        "scores": [],
+                        "first": i,
+                        "last": i,
+                        "box": box,
+                        "miss": 0,
+                        "rel": None,
+                    }
                     ctx = reg.emb[jc].astype(np.float32) if jc is not None else femb[i].astype(np.float32)
                     out.append(
                         Event(

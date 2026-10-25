@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Callable
 
 import numpy as np
 
@@ -64,7 +65,10 @@ def main() -> None:
     tl = m1["systems"]["B2-frame-CLIP-2s"]["val_tuning"]
     fam = {"where": "where", "absent": "where", "temporal": "temporal", "state": "state"}
     cfgs_b2 = {
-        k: AnswerConfig(mode=tl[v]["mode"], recency_s=tl[v]["recency_s"], tau=tl[v]["tau"], score=tl[v].get("score", "prob")) for k, v in fam.items()
+        k: AnswerConfig(
+            mode=tl[v]["mode"], recency_s=tl[v]["recency_s"], tau=tl[v]["tau"], score=tl[v].get("score", "prob")
+        )
+        for k, v in fam.items()
     }
 
     import torch
@@ -140,21 +144,24 @@ def main() -> None:
     sysname = f"Recall-learned@{a.budget}"
     rt = [json.loads(line) for line in (RESULTS / "m4" / f"records_{sysname}.jsonl").read_text().splitlines()]
     locs = location_names()
-    llm = None
+    llm: Callable[[str], str] | None = None
     try:
         from mlx_lm import generate as lgen
         from mlx_lm import load as lload
 
-        lm, tok = lload(a.llm)
+        loaded = lload(a.llm)
+        lm, tok = loaded[0], loaded[1]
 
-        def llm(prompt: str) -> str:
+        def _llm(prompt: str) -> str:
             msgs = [{"role": "user", "content": prompt}]
             p = tok.apply_chat_template(msgs, add_generation_prompt=True, tokenize=False)
             return lgen(lm, tok, prompt=p, max_tokens=60, verbose=False)
+
+        llm = _llm
     except Exception as e:  # pragma: no cover
         print("LLM unavailable:", e)
     th = out["systems"][sysname]["isotonic_selective"]["threshold_from_val"]
-    gen_rows = []
+    gen_rows: list[dict] = []
     hallucinated = 0
     for r in rt[: a.n_llm * 4]:
         kind = "where" if r["kind"] == "absent" else r["kind"]
