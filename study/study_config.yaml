@@ -1,0 +1,48 @@
+# M10 user-study configuration. Edit items / hiding places / filler tasks for your study site BEFORE
+# generating assignments (`make study-design`). Changing this file after sessions have started breaks
+# the counterbalancing — regenerate only before participant P01.
+seed: 20261025
+n_participants: 18          # design rows generated. Plan n = 12 (P01-P12). Each consecutive block of 6 is
+                            # exactly balanced, so stopping at 6, 12 or 18 keeps full balance; P13-P18 are
+                            # reserve rows if you recruit more than 12 (stop at 15 => slightly unbalanced).
+items_per_condition: 3      # 3 conditions x 3 items = 9 retrieval trials per participant
+time_cap_s: 180             # a trial ends as a failure at this time (time_to_find_s is recorded as the cap)
+retention_delay_min: 30     # minimum delay between the last put-down and the first retrieval trial
+conditions: [recall, none, b2]
+
+# 9 everyday items (must be items_per_condition * 3). Use small, distinct, unbreakable objects.
+items:
+  - keys
+  - wallet
+  - sunglasses
+  - tv_remote
+  - earbuds_case
+  - usb_stick
+  - pen
+  - lip_balm
+  - watch
+
+# Hiding places (>= number of items). Each must be (a) visible to the chest camera while the item is put
+# there, (b) not visible from the room's doorway, (c) safe to reach. Each participant gets a random subset.
+hiding_places:
+  - top_kitchen_drawer
+  - under_sofa_cushion
+  - behind_books_on_shelf
+  - coat_pocket_on_hook
+  - inside_bread_bin
+  - cupboard_under_sink
+  - inside_shoe_by_door
+  - behind_plant_pot
+  - desk_drawer
+  - inside_mug_in_cupboard
+  - under_bed_pillow
+  - laundry_basket
+
+# Filler tasks interleaved with the put-downs during encoding (realistic distraction; also recorded).
+filler_tasks:
+  - pour a glass of water and put the jug back
+  - sort the three envelopes on the table into 'open' and 'recycle'
+  - fold the towel and hang it up
+  - take a book off the shelf, read its first line aloud, put it back
+  - wipe the kitchen counter
+  - move the chair from the desk to the window and back

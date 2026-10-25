@@ -1,0 +1,7 @@
+seed=20261025 n=18
+participants per condition x block position:
+block_index  1  2  3
+condition           
+b2           6  6  6
+none         6  6  6
+recall       6  6  6

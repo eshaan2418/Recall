@@ -1,0 +1,289 @@
+{
+ "n_participants": 12,
+ "n_trials": 108,
+ "excluded_incomplete": [],
+ "descriptives": {
+  "b2": {
+   "median_time_s": 42.900000000000006,
+   "success_rate": 0.9722222222222222,
+   "n_trials": 36
+  },
+  "none": {
+   "median_time_s": 58.85,
+   "success_rate": 0.9444444444444444,
+   "n_trials": 36
+  },
+  "recall": {
+   "median_time_s": 40.400000000000006,
+   "success_rate": 1.0,
+   "n_trials": 36
+  }
+ },
+ "time": {
+  "model": "crossed: (1|participant) + (1|item)",
+  "n_obs": 108,
+  "converged": false,
+  "trial_slope": -0.010275613275427068,
+  "contrasts": {
+   "recall_vs_b2": {
+    "estimate": -0.27728885120627056,
+    "se": 0.1280632971557972,
+    "z": -2.1652484151562246,
+    "p": 0.03036866645987478,
+    "ratio": 0.7578355637757003,
+    "ratio_lo": 0.5896106273264581,
+    "ratio_hi": 0.9740576494141863,
+    "p_holm": 0.03036866645987478
+   },
+   "recall_vs_none": {
+    "estimate": -0.5863515287084938,
+    "se": 0.12806329715579723,
+    "z": -4.578607155453444,
+    "p": 4.680823569849426e-06,
+    "ratio": 0.5563534258302152,
+    "ratio_lo": 0.4328536533501431,
+    "ratio_hi": 0.7150895736639031,
+    "p_holm": 9.361647139698852e-06
+   },
+   "b2_vs_none": {
+    "estimate": -0.30906267750222327,
+    "se": 0.12806329715579723,
+    "z": -2.413358740297219,
+    "p": 0.01580625355489839,
+    "ratio": 0.7341347548514909,
+    "ratio_lo": 0.5711709426693737,
+    "ratio_hi": 0.9435946369436301
+   }
+  },
+  "sd_random": {
+   "participant": 8.558984547133499e-05,
+   "item": 0.3215617091111705
+  },
+  "sd_resid": 0.5433265550398325
+ },
+ "time_found_only": {
+  "model": "crossed: (1|participant) + (1|item)",
+  "n_obs": 105,
+  "converged": false,
+  "trial_slope": -0.007057876584179797,
+  "contrasts": {
+   "recall_vs_b2": {
+    "estimate": -0.24039108885704236,
+    "se": 0.13570192574527842,
+    "z": -1.7714640933561436,
+    "p": 0.07648355856342254,
+    "ratio": 0.7863202798251697,
+    "ratio_lo": 0.6026812293064903,
+    "ratio_hi": 1.0259147828045267
+   },
+   "recall_vs_none": {
+    "estimate": -0.5263658466123396,
+    "se": 0.13694035818173028,
+    "z": -3.8437598207083123,
+    "p": 0.00012116359168136351,
+    "ratio": 0.5907479420094521,
+    "ratio_lo": 0.451685585431918,
+    "ratio_hi": 0.7726240160059408
+   },
+   "b2_vs_none": {
+    "estimate": -0.2859747577552973,
+    "se": 0.1379483984560174,
+    "z": -2.0730560191786185,
+    "p": 0.038167066436950746,
+    "ratio": 0.7512815797410171,
+    "ratio_lo": 0.5732957119262183,
+    "ratio_hi": 0.9845250894372609
+   }
+  },
+  "sd_random": {
+   "participant": 0.23268319805413076,
+   "item": 0.11909210365969325
+  },
+  "sd_resid": 0.5711652217342545
+ },
+ "time_participant_level": {
+  "recall_vs_b2": {
+   "n": 12,
+   "mean_log_diff": -0.27728885120627056,
+   "ratio": 0.7578355637757003,
+   "p": 0.1180776517365644
+  },
+  "recall_vs_none": {
+   "n": 12,
+   "mean_log_diff": -0.586351528708493,
+   "ratio": 0.5563534258302156,
+   "p": 0.0009056057643280082
+  },
+  "b2_vs_none": {
+   "n": 12,
+   "mean_log_diff": -0.30906267750222255,
+   "ratio": 0.7341347548514915,
+   "p": 0.019816713031832668
+  }
+ },
+ "success": {
+  "rates": {
+   "b2": 0.9722222222222222,
+   "none": 0.9444444444444444,
+   "recall": 1.0
+  },
+  "separation": true,
+  "method": "Wilcoxon signed-rank on per-participant success rates (separation/GEE failure fallback)",
+  "contrasts": {
+   "recall_vs_b2": {
+    "n": 12,
+    "median_diff": 0.0,
+    "r_rb": 1.0,
+    "stat": 0.0,
+    "p": 1.0
+   },
+   "recall_vs_none": {
+    "n": 12,
+    "median_diff": 0.0,
+    "r_rb": 1.0,
+    "stat": 0.0,
+    "p": 1.0
+   },
+   "b2_vs_none": {
+    "n": 12,
+    "median_diff": 0.0,
+    "r_rb": 1.0,
+    "stat": 0.0,
+    "p": 1.0
+   }
+  }
+ },
+ "questionnaires": {
+  "descriptives": {
+   "tlx_raw": {
+    "b2": {
+     "median": 50.0,
+     "mean": 51.388888888888886,
+     "n": 12
+    },
+    "none": {
+     "median": 53.75,
+     "mean": 55.90277777777778,
+     "n": 12
+    },
+    "recall": {
+     "median": 45.0,
+     "mean": 46.38888888888889,
+     "n": 12
+    }
+   },
+   "sus_score": {
+    "b2": {
+     "median": 70.0,
+     "mean": 69.16666666666667,
+     "n": 12
+    },
+    "recall": {
+     "median": 77.5,
+     "mean": 75.625,
+     "n": 12
+    }
+   },
+   "trust": {
+    "b2": {
+     "median": 4.833333333333334,
+     "mean": 4.611111111111112,
+     "n": 12
+    },
+    "recall": {
+     "median": 5.666666666666667,
+     "mean": 5.361111111111111,
+     "n": 12
+    }
+   },
+   "useful": {
+    "b2": {
+     "median": 5.0,
+     "mean": 4.791666666666667,
+     "n": 12
+    },
+    "recall": {
+     "median": 5.75,
+     "mean": 5.416666666666667,
+     "n": 12
+    }
+   }
+  },
+  "tlx_friedman": {
+   "chi2": 5.636363636363626,
+   "p": 0.059714415732185576,
+   "n": 12
+  },
+  "tests": {
+   "tlx_recall_vs_b2": {
+    "n": 12,
+    "median_diff": -4.583333333333336,
+    "r_rb": -0.6212121212121212,
+    "stat": 12.5,
+    "p": 0.072265625
+   },
+   "tlx_recall_vs_none": {
+    "n": 12,
+    "median_diff": -11.666666666666668,
+    "r_rb": -0.8181818181818182,
+    "stat": 6.0,
+    "p": 0.0126953125
+   },
+   "tlx_b2_vs_none": {
+    "n": 12,
+    "median_diff": -1.6666666666666643,
+    "r_rb": -0.45454545454545453,
+    "stat": 18.0,
+    "p": 0.1982421875
+   },
+   "sus_score_recall_vs_b2": {
+    "n": 12,
+    "median_diff": 5.0,
+    "r_rb": 0.8484848484848485,
+    "stat": 5.0,
+    "p": 0.009765625
+   },
+   "trust_recall_vs_b2": {
+    "n": 12,
+    "median_diff": 0.5000000000000004,
+    "r_rb": 1.0,
+    "stat": 0.0,
+    "p": 0.001953125
+   },
+   "useful_recall_vs_b2": {
+    "n": 12,
+    "median_diff": 0.75,
+    "r_rb": 0.5757575757575758,
+    "stat": 14.0,
+    "p": 0.091796875
+   }
+  }
+ },
+ "secondary_holm": {
+  "success_recall_vs_b2": 1.0,
+  "success_recall_vs_none": 1.0,
+  "tlx_recall_vs_b2": 0.361328125,
+  "tlx_recall_vs_none": 0.076171875,
+  "tlx_b2_vs_none": 0.5947265625,
+  "sus_score_recall_vs_b2": 0.068359375,
+  "trust_recall_vs_b2": 0.015625,
+  "useful_recall_vs_b2": 0.3671875
+ },
+ "reliance": {
+  "recall": {
+   "assistant_accuracy": 0.8333333333333334,
+   "n": 36,
+   "followed_when_correct": 0.9,
+   "followed_when_wrong": 0.3333333333333333
+  },
+  "b2": {
+   "assistant_accuracy": 0.7222222222222222,
+   "n": 36,
+   "followed_when_correct": 0.7307692307692307,
+   "followed_when_wrong": 0.8
+  },
+  "recall_confidence_auc": 0.9805555555555555
+ },
+ "simulated": true,
+ "WARNING": "SIMULATED DATA \u2014 pipeline validation only. NOT study results; do not report."
+}

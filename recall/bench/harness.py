@@ -138,9 +138,10 @@ def run(
     model: str,
     queries: list[Query] | None = None,
     feats_cache: dict | None = None,
+    videos: list[str] | None = None,
 ) -> tuple[list[dict], dict]:
     qs = queries if queries is not None else queries_for(split)
-    vids = available(split, model)
+    vids = videos if videos is not None else available(split, model)
     by_vid: dict[str, list[Query]] = {}
     for q in qs:
         by_vid.setdefault(q.video_id, []).append(q)

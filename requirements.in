@@ -15,3 +15,5 @@ open_clip_torch
 pytest
 ruff
 mypy
+statsmodels
+ai-edge-litert

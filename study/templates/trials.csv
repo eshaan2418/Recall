@@ -1,0 +1,1 @@
+participant_id,trial_index,block_index,condition,item,hiding_place,time_to_find_s,success,n_queries,assistant_correct,assistant_confidence,followed_assistant_first

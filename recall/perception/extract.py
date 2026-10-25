@@ -23,7 +23,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from collections.abc import Callable
 from pathlib import Path
+from typing import Protocol
 
 import numpy as np
 from PIL import Image
@@ -91,10 +93,40 @@ def extract_video(
 
 
 def _extract(video_id: str, fps: float, duration: float, model: tuple[str, str], out: Path) -> Path:
-    out_dir = out.parent
     emb = load_embedder(*model)
     hoi = load_hoi(EPIC_RAW / "hoi" / f"{video_id}.pkl")
-    reader = FrameReader(video_id)
+
+    def teacher(i: int, fidx: int, img: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        return hands_array(hoi[min(fidx - 1, len(hoi) - 1)])
+
+    return extract_with(video_id, fps, duration, out, emb.images, emb.dim, teacher, list(model))
+
+
+class FrameSource(Protocol):
+    def __len__(self) -> int: ...
+    def frame(self, idx: int) -> np.ndarray: ...
+    def close(self) -> None: ...
+
+
+HoiFn = Callable[[int, int, np.ndarray], tuple[np.ndarray, np.ndarray]]
+
+
+def extract_with(
+    video_id: str,
+    fps: float,
+    duration: float,
+    out: Path,
+    images_fn: Callable[..., np.ndarray],
+    dim: int,
+    hoi_fn: HoiFn,
+    model_meta: object,
+    reader: FrameSource | None = None,
+) -> Path:
+    """Core extraction loop with a pluggable embedder (``images_fn(list[img], batch=) -> [N,D]``) and
+    hand–object source (``hoi_fn(step, native_frame_idx, img) -> (hands[2,7], hobj[2,5])``). Used by the
+    teacher cache above and by M5 (student HOI + quantised LiteRT embedders)."""
+    out_dir = out.parent
+    reader = reader if reader is not None else FrameReader(video_id)
     n_native = len(reader)
     ts = np.arange(0.0, duration, 1.0 / RATE)
     T = len(ts)
@@ -113,22 +145,21 @@ def _extract(video_id: str, fps: float, duration: float, model: tuple[str, str],
 
     def flush() -> None:
         if frame_imgs:
-            frame_emb.append(emb.images(frame_imgs, batch=BATCH).astype(np.float16))
+            frame_emb.append(images_fn(frame_imgs, batch=BATCH).astype(np.float16))
             frame_imgs.clear()
 
     region_emb: list[np.ndarray] = []
 
     def flush_regions() -> None:
         if reg_imgs:
-            region_emb.append(emb.images(reg_imgs, batch=BATCH).astype(np.float16))
+            region_emb.append(images_fn(reg_imgs, batch=BATCH).astype(np.float16))
             reg_imgs.clear()
 
     for i, t in enumerate(tqdm(ts, desc=video_id, leave=False, disable=True)):
         fidx = min(n_native, int(round(t * fps)) + 1)
         img = reader.frame(fidx)
         thumbs[i] = np.asarray(Image.fromarray(img).resize(THUMB_HW[::-1], Image.Resampling.BILINEAR))
-        fr = hoi[min(fidx - 1, len(hoi) - 1)]
-        H, O = hands_array(fr)
+        H, O = hoi_fn(i, fidx, img)
         hands[i], hobj[i] = H, O
         frame_imgs.append(img)
         for side in (0, 1):
@@ -168,8 +199,8 @@ def _extract(video_id: str, fps: float, duration: float, model: tuple[str, str],
         reg_kind=np.array(reg_kind, np.int8),
         reg_side=np.array(reg_side, np.int8),
         reg_box=np.array(reg_box, np.float32).reshape(-1, 4),
-        reg_emb=np.concatenate(region_emb) if region_emb else np.zeros((0, emb.dim), np.float16),
-        meta=json.dumps({"video_id": video_id, "fps": fps, "rate": RATE, "model": list(model)}),
+        reg_emb=np.concatenate(region_emb) if region_emb else np.zeros((0, dim), np.float16),
+        meta=json.dumps({"video_id": video_id, "fps": fps, "rate": RATE, "model": model_meta}),
     )
     return out
 

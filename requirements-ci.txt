@@ -13,3 +13,4 @@ torch
 pytest
 ruff
 mypy
+statsmodels==0.15.0
